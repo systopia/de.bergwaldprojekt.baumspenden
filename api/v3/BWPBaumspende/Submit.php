@@ -80,6 +80,27 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 1,
     'description' => 'The amount of donations being made.',
   );
+  $spec['plant_region'] = array(
+    'name' => 'plant_region',
+    'title' => 'Planting region',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'description' => 'The region which the trees are to be planted in.',
+  );
+  $spec['plant_period'] = array(
+    'name' => 'plant_preiod',
+    'title' => 'Planting period',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'description' => 'The period of time which the trees are to be planted in.',
+  );
+  $spec['plant_tree'] = array(
+    'name' => 'plant_tree',
+    'title' => 'Tree species',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'description' => 'The species of which the trees are to be planted.',
+  );
   $spec['shipping_mode'] = array(
     'name' => 'shipping_mode',
     'title' => 'Shipping mode',
@@ -164,5 +185,117 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
  * @throws API_Exception
  */
 function civicrm_api3_b_w_p_baumspende_Submit($params) {
+  try {
+    $result = array();
 
+    // Identify or create initiator contact.
+    $initiator_data = array_intersect_key($params, array_fill_keys(array(
+      'first_name',
+      'last_name',
+      'street_address',
+      'postal_code',
+      'city',
+      'email',
+    ), TRUE));
+    $xcm_result = civicrm_api3(
+      'Contact',
+      'getorcreate',
+      $initiator_data + array(
+        'xcm_profile' => 'baumspenden',
+      ));
+    if ($xcm_result['is_error']) {
+      throw new Exception($xcm_result['error_message']);
+    }
+    $initiator_contact_id = $xcm_result['id'];
+    $result['initiator_contact_id'] = $initiator_contact_id;
+
+    // Create SEPA mandate (with contribution).
+    $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
+      'name' => 'Baumspende',
+    ));
+    $mandate_data = array(
+      'contact_id' => $initiator_contact_id,
+      'type' => 'OOFF',
+      'iban' => $params['iban'],
+      'bic' => $params['bic'],
+      'amount' => $params['unit_price'] * $params['amount'],
+      'financial_type_id' => $financial_type['id'],
+    );
+
+    // Include specific data (region, period, tree species).
+    foreach (array(
+               'plant_region',
+               'plant_period',
+               'plant_tree',
+             ) as $custom_field_name) {
+      $custom_field = CRM_Bwpapi_CustomData::getCustomField(
+        'baumspende',
+        'baumspende_' . $custom_field_name
+      );
+
+      // Resolve or add option values for the custom fields.
+      try {
+        $option_value = civicrm_api3('OptionValue', 'getsingle', array(
+          'option_group_id' => 'baumspenden_' . $custom_field_name,
+          'name' => $params[$custom_field_name],
+        ));
+      }
+      catch (Exception $exception) {
+        $option_value = civicrm_api3('OptionValue', 'create', array(
+          'option_group_id' => 'baumspenden_' . $custom_field_name,
+          'name' => $params[$custom_field_name],
+        ));
+        $option_value = reset($option_value['values']);
+      }
+
+      $mandate_data['custom_' . $custom_field['id']] = $option_value['value'];
+    }
+
+    $mandate = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
+    if ($mandate['is_error']) {
+      throw new Exception($mandate['error_message']);
+    }
+    $result['mandate_id'] = $mandate['id'];
+    $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
+
+    // Create activity "Schenkung Baumspende", if applicable.
+    if (!empty($params['as_present'])) {
+      // Identify or create presentee contact.
+      $presentee_data = array(
+        'first_name' => $params['presentee_first_name'],
+        'last_name' => $params['presentee_last_name'],
+        'street_address' => $params['presentee_street_address'],
+        'postal_code' => $params['presentee_postal_code'],
+        'city' => $params['presentee_city'],
+        'email' => $params['presentee_email'],
+      );
+      $xcm_result = civicrm_api3(
+        'Contact',
+        'getorcreate',
+        $presentee_data + array(
+          'xcm_profile' => 'baumspenden',
+        ));
+      if ($xcm_result['is_error']) {
+        throw new Exception($xcm_result['error_message']);
+      }
+      $presentee_contact_id = $xcm_result['id'];
+      $result['presentee_contact_id'] = $presentee_contact_id;
+
+      $activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'schenkung_baumspende');
+
+      // Create the activity.
+      $activity = civicrm_api3('Activity', 'create', array(
+        'source_contact_id' => $initiator_contact_id,
+        'activity_type_id' => $activity_type_id,
+        'subject' => 'Schenkung Baumspende',
+        'target_id' => $presentee_contact_id,
+      ));
+      $result['activity_id'] = $activity['id'];
+    }
+
+    return civicrm_api3_create_success($result);
+  }
+  catch (Exception $exception) {
+    return civicrm_api3_create_error($exception->getMessage());
+  }
 }

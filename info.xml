@@ -21,6 +21,10 @@
     <ver>5.0</ver>
   </compatibility>
   <comments></comments>
+  <requires>
+    <ext>de.systopia.xcm</ext>
+    <ext>org.project60.sepa</ext>
+  </requires>
   <civix>
     <namespace>CRM/Bwpapi</namespace>
   </civix>

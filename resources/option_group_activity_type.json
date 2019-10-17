@@ -1,0 +1,15 @@
+{
+  "_lookup": ["name"],
+  "name": "activity_type",
+  "_values": [
+    {
+      "_lookup": ["name"],
+      "_translate": ["label"],
+      "label": "Schenkung Baumspende",
+      "name": "schenkung_baumspende",
+      "filter": "0",
+      "is_reserved": "1",
+      "is_active": "1"
+    }
+  ]
+}

@@ -55,6 +55,15 @@ function bwpapi_civicrm_uninstall() {
  */
 function bwpapi_civicrm_enable() {
   _bwpapi_civix_civicrm_enable();
+
+  require_once 'CRM/Bwpapi/CustomData.php';
+  $customData = new CRM_Bwpapi_CustomData(E::LONG_NAME);
+  $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_period.json');
+  $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_region.json');
+  $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_tree.json');
+  $customData->syncEntities(__DIR__ . '/resources/financial_type_baumspende.json');
+  $customData->syncCustomGroup(__DIR__ . '/resources/custom_group_baumspende.json');
+  $customData->syncOptionGroup(__DIR__ . '/resources/option_group_activity_type.json');
 }
 
 /**

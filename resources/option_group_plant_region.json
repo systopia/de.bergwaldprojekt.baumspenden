@@ -1,0 +1,11 @@
+{
+  "_lookup": ["name"],
+  "_translate": ["title"],
+  "name": "baumspenden_plant_region",
+  "title": "Baumspenden-Planzregionen",
+  "is_reserved": "1",
+  "is_active": "1",
+  "_values": [
+
+  ]
+}

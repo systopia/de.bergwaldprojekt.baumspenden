@@ -1,0 +1,11 @@
+{
+  "_lookup": ["name"],
+  "_translate": ["title"],
+  "name": "baumspenden_plant_tree",
+  "title": "Baumspenden-Baumarten",
+  "is_reserved": "1",
+  "is_active": "1",
+  "_values": [
+
+  ]
+}
