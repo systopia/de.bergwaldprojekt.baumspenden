@@ -67,7 +67,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'description' => 'The SWIFT-Code (BIC) of the donation initiator\'s bank account.',
   );
   $spec['unit_price'] = array(
-    'name' => 'unit_preice',
+    'name' => 'unit_price',
     'title' => 'Unit price',
     'type' => CRM_Utils_Type::T_INT,
     'api.required' => 1,
@@ -88,7 +88,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'description' => 'The region which the trees are to be planted in.',
   );
   $spec['plant_period'] = array(
-    'name' => 'plant_preiod',
+    'name' => 'plant_period',
     'title' => 'Planting period',
     'type' => CRM_Utils_Type::T_STRING,
     'api.required' => 1,
