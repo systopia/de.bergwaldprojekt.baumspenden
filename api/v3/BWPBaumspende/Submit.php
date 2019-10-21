@@ -31,6 +31,13 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 1,
     'description' => 'The street address of the donation initiator\'s address.',
   );
+  $spec['supplemental_address_1'] = array(
+    'name' => 'supplemental_address_1',
+    'title' => 'Supplemental address 1',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'description' => 'The supplemental address 1 of the donation initiator\'s address.',
+  );
   $spec['postal_code'] = array(
     'name' => 'postal_code',
     'title' => 'Postal code',
@@ -145,6 +152,13 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 0,
     'description' => 'The street address of the presentee\'s address.',
   );
+  $spec['presentee_supplemental_address_1'] = array(
+    'name' => 'presentee_supplemental_address_1',
+    'title' => 'PresenteeSupplemental address 1',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'description' => 'The supplemental address 1 of the donation presentee\'s address.',
+  );
   $spec['presentee_postal_code'] = array(
     'name' => 'presentee_postal_code',
     'title' => 'Presentee Postal code',
@@ -173,6 +187,14 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 0,
     'description' => 'The message being sent to the presentee.',
   );
+  $spec['newsletter'] = array(
+    'name' => 'newsletter',
+    'title' => 'Subscribe to noewsletter',
+    'type' => CRM_Utils_Type::T_BOOLEAN,
+    'api.required' => 0,
+    'api.default' => 0,
+    'description' => 'Whether the initiator wants to subscribe to the newsletter.',
+  );
 }
 
 /**
@@ -188,11 +210,20 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
   try {
     $result = array();
 
+    // Prepare parameters.
+    if (!empty($params['as_present']) && is_array($params['as_present'])) {
+      $params['as_present'] = reset($params['as_present']);
+    }
+    if (!empty($params['newsletter']) && is_array($params['newsletter'])) {
+      $params['newsletter'] = reset($params['newsletter']);
+    }
+
     // Identify or create initiator contact.
     $initiator_data = array_intersect_key($params, array_fill_keys(array(
       'first_name',
       'last_name',
       'street_address',
+      'supplemental_address_1',
       'postal_code',
       'city',
       'email',
@@ -265,6 +296,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
         'first_name' => $params['presentee_first_name'],
         'last_name' => $params['presentee_last_name'],
         'street_address' => $params['presentee_street_address'],
+        'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : NULL),
         'postal_code' => $params['presentee_postal_code'],
         'city' => $params['presentee_city'],
         'email' => $params['presentee_email'],
