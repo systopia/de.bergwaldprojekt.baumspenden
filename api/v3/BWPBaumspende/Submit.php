@@ -293,6 +293,15 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       $result['activity_id'] = $activity['id'];
     }
 
+    // Add newsletter subscription for group_id 19.
+    if (!empty($params['newsletter'])) {
+      $group_contact = civicrm_api3('GroupContact', 'create', array(
+        'contact_id' => $initiator_contact_id,
+        'group_id' => 19
+      ));
+      $result['group_contact_id'] = $group_contact['id'];
+    }
+
     return civicrm_api3_create_success($result);
   }
   catch (Exception $exception) {
