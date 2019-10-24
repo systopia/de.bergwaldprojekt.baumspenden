@@ -59,6 +59,13 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 1,
     'description' => 'The e-mail address of the donation initiator.',
   );
+  $spec['source'] = array(
+    'name' => 'source',
+    'title' => 'Contact source',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 0,
+    'description' => 'The contact source of the donation initiator.',
+  );
   $spec['iban'] = array(
     'name' => 'iban',
     'title' => 'IBAN',
@@ -227,6 +234,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       'postal_code',
       'city',
       'email',
+      'source',
     ), TRUE));
     $xcm_result = civicrm_api3(
       'Contact',
