@@ -291,27 +291,27 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
 
     // Create activity "Schenkung Baumspende", if applicable.
     if (!empty($params['as_present'])) {
-      // Identify or create presentee contact.
-      $presentee_data = array(
-        'first_name' => $params['presentee_first_name'],
-        'last_name' => $params['presentee_last_name'],
-        'street_address' => $params['presentee_street_address'],
-        'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : NULL),
-        'postal_code' => $params['presentee_postal_code'],
-        'city' => $params['presentee_city'],
-        'email' => $params['presentee_email'],
-      );
-      $xcm_result = civicrm_api3(
-        'Contact',
-        'getorcreate',
-        $presentee_data + array(
-          'xcm_profile' => 'baumspenden',
-        ));
-      if ($xcm_result['is_error']) {
-        throw new Exception($xcm_result['error_message']);
-      }
-      $presentee_contact_id = $xcm_result['id'];
-      $result['presentee_contact_id'] = $presentee_contact_id;
+//      // Identify or create presentee contact.
+//      $presentee_data = array(
+//        'first_name' => $params['presentee_first_name'],
+//        'last_name' => $params['presentee_last_name'],
+//        'street_address' => $params['presentee_street_address'],
+//        'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : NULL),
+//        'postal_code' => $params['presentee_postal_code'],
+//        'city' => $params['presentee_city'],
+//        'email' => $params['presentee_email'],
+//      );
+//      $xcm_result = civicrm_api3(
+//        'Contact',
+//        'getorcreate',
+//        $presentee_data + array(
+//          'xcm_profile' => 'baumspenden',
+//        ));
+//      if ($xcm_result['is_error']) {
+//        throw new Exception($xcm_result['error_message']);
+//      }
+//      $presentee_contact_id = $xcm_result['id'];
+//      $result['presentee_contact_id'] = $presentee_contact_id;
 
       $activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'schenkung_baumspende');
 
@@ -320,7 +320,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
         'source_contact_id' => $initiator_contact_id,
         'activity_type_id' => $activity_type_id,
         'subject' => 'Schenkung Baumspende',
-        'target_id' => $presentee_contact_id,
+//        'target_id' => $presentee_contact_id,
       ));
       $result['activity_id'] = $activity['id'];
     }
