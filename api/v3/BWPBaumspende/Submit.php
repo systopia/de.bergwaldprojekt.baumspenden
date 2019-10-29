@@ -265,6 +265,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       'bic' => $params['bic'],
       'amount' => $params['unit_price'] * $params['amount'],
       'financial_type_id' => $financial_type['id'],
+      'source' => 'Formular Baumspende',
     );
 
     // Include specific data (region, period, tree species).
@@ -359,13 +360,29 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       $result['present_activity_id'] = $present_activity['id'];
     }
 
-    // Add newsletter subscription for group_id 19.
+    /**
+     * Add newsletter subscription for group_id 19, if requested.
+     */
     if (!empty($params['newsletter'])) {
-      $group_contact = civicrm_api3('GroupContact', 'create', array(
+      // Find the initiator contact's e-mail address to use for subscription.
+      try {
+        $initiator_email = civicrm_api3('Email', 'getsingle', array(
+          'contact_id' => $initiator_contact_id,
+          'is_bulkmail' => 1,
+        ));
+      }
+      catch (Exception $exception) {
+        $initiator_email = civicrm_api3('Email', 'getsingle', array(
+          'contact_id' => $initiator_contact_id,
+          'is_primary' => 1,
+        ));
+      }
+      $mailing_event_subscribe = civicrm_api3('MailingEventSubscribe', 'create', array(
         'contact_id' => $initiator_contact_id,
-        'group_id' => 19
+        'email' => $initiator_email['email'],
+        'group_id' => 19,
       ));
-      $result['group_contact_id'] = $group_contact['id'];
+      $result['mailing_event_subscribe_id'] = $mailing_event_subscribe['id'];
     }
 
     return civicrm_api3_create_success($result);
