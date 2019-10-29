@@ -217,7 +217,9 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
   try {
     $result = array();
 
-    // Prepare parameters.
+    /**
+     * Prepare parameters.
+     */
     if (!empty($params['as_present']) && is_array($params['as_present'])) {
       $params['as_present'] = reset($params['as_present']);
     }
@@ -225,7 +227,9 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       $params['newsletter'] = reset($params['newsletter']);
     }
 
-    // Identify or create initiator contact.
+    /**
+     * Identify or create initiator contact.
+     */
     $initiator_data = array_intersect_key($params, array_fill_keys(array(
       'first_name',
       'last_name',
@@ -248,7 +252,9 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     $initiator_contact_id = $xcm_result['id'];
     $result['initiator_contact_id'] = $initiator_contact_id;
 
-    // Create SEPA mandate (with contribution).
+    /**
+     * Create SEPA mandate (with contribution).
+     */
     $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
       'name' => 'Baumspende',
     ));
@@ -297,7 +303,27 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     $result['mandate_id'] = $mandate['id'];
     $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
 
-    // Create activity "Schenkung Baumspende", if applicable.
+    /**
+     * Create activity of type "Donation".
+     */
+    $contribution_params = array(
+      'id' => $result['contribution_id'],
+    );
+    // Fetch the contribution BAO.
+    $contribution = CRM_Contribute_BAO_Contribution::retrieve($contribution_params, $defaults = array(), $ids = array());
+    // Fake the contribution status to force create an activity for this pending
+    // contribution.
+    $contribution->contribution_status_id = CRM_Core_PseudoConstant::getKey(
+      'CRM_Contribute_BAO_Contribution',
+      'contribution_status_id',
+      'Completed'
+    );
+    // Add the activity using core's logic.
+    CRM_Activity_BAO_Activity::addActivity($contribution, 'Contribution');
+
+    /**
+     * Create activity of type "Schenkung Baumspende", if requested.
+     */
     if (!empty($params['as_present'])) {
 //      // Identify or create presentee contact.
 //      $presentee_data = array(
@@ -321,16 +347,16 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
 //      $presentee_contact_id = $xcm_result['id'];
 //      $result['presentee_contact_id'] = $presentee_contact_id;
 
-      $activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'schenkung_baumspende');
+      $present_activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'schenkung_baumspende');
 
       // Create the activity.
-      $activity = civicrm_api3('Activity', 'create', array(
+      $present_activity = civicrm_api3('Activity', 'create', array(
         'source_contact_id' => $initiator_contact_id,
-        'activity_type_id' => $activity_type_id,
+        'activity_type_id' => $present_activity_type_id,
         'subject' => 'Schenkung Baumspende',
 //        'target_id' => $presentee_contact_id,
       ));
-      $result['activity_id'] = $activity['id'];
+      $result['present_activity_id'] = $present_activity['id'];
     }
 
     // Add newsletter subscription for group_id 19.
@@ -346,16 +372,16 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
   }
   catch (Exception $exception) {
     // Rollback current base transaction in order to not rollback the creation
-    // of the activity.
+    // of the "failed" activity.
     if (($frame = \Civi\Core\Transaction\Manager::singleton()->getFrame()) !== NULL) {
       $frame->forceRollback();
     }
     // Create activity of type "fehlgeschlagene_baumspende".
-    $activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'fehlgeschlagene_baumspende');
+    $failed_activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'fehlgeschlagene_baumspende');
     civicrm_api3('Activity', 'create', array(
       'source_contact_id' => CRM_Core_Session::singleton()->getLoggedInContactID(),
       'target_id' => (isset($initiator_contact_id) ? $initiator_contact_id : NULL),
-      'activity_type_id' => $activity_type_id,
+      'activity_type_id' => $failed_activity_type_id,
       'subject' => 'Fehlgeschlagene Baumspende',
       'details' => '<p>' . $exception->getMessage() . '</p>'
         . '<pre>' . json_encode($params, JSON_PRETTY_PRINT) . '</pre>',
