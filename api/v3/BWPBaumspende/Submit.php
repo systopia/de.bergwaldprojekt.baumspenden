@@ -136,7 +136,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'type' => CRM_Utils_Type::T_BOOLEAN,
     'api.required' => 0,
     'api.default' => 0,
-    'description' => 'Whether the donation is to be shipped to the presentee.',
+    'description' => 'Whether the donation certificate is to be shipped to the presentee.',
   );
   $spec['presentee_first_name'] = array(
     'name' => 'presentee_first_name',
