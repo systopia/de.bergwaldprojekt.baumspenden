@@ -399,6 +399,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       'source_contact_id' => CRM_Core_Session::singleton()->getLoggedInContactID(),
       'target_id' => (isset($initiator_contact_id) ? $initiator_contact_id : NULL),
       'activity_type_id' => $failed_activity_type_id,
+      'status_id' => 'Scheduled',
       'subject' => 'Fehlgeschlagene Baumspende',
       'details' => '<p>' . $exception->getMessage() . '</p>'
         . '<pre>' . json_encode($params, JSON_PRETTY_PRINT) . '</pre>',
