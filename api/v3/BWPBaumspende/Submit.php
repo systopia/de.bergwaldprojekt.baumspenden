@@ -393,6 +393,15 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     if (($frame = \Civi\Core\Transaction\Manager::singleton()->getFrame()) !== NULL) {
       $frame->forceRollback();
     }
+    // Check whether the initiator contact exists or its creation has been
+    // rolled back.
+    try {
+      civicrm_api3('Contact', 'getsingle', array('id' => $initiator_contact_id));
+    }
+    catch (CiviCRM_API3_Exception $excpetion) {
+      unset($initiator_contact_id);
+    }
+    
     // Create activity of type "fehlgeschlagene_baumspende".
     $failed_activity_type_id = CRM_Core_PseudoConstant::getKey('CRM_Activity_BAO_Activity', 'activity_type_id', 'fehlgeschlagene_baumspende');
     civicrm_api3('Activity', 'create', array(
