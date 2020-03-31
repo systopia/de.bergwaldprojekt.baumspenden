@@ -255,6 +255,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     /**
      * Create SEPA mandate (with contribution).
      */
+    // TODO: Accept different payment instruments, SEPA being one of them.
     $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
       'name' => 'Baumspende',
     ));
