@@ -1,5 +1,5 @@
 <?php
-use CRM_Bwpapi_ExtensionUtil as E;
+use CRM_Baumspenden_ExtensionUtil as E;
 
 /**
  * BWPBaumspende.Submit API specification (optional)
@@ -274,7 +274,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
                'plant_period',
                'plant_tree',
              ) as $custom_field_name) {
-      $custom_field = CRM_Bwpapi_CustomData::getCustomField(
+      $custom_field = CRM_Baumspenden_CustomData::getCustomField(
         'baumspende',
         'baumspende_' . $custom_field_name
       );

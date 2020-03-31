@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<extension key="de.bergwaldprojekt.bwpapi" type="module">
-  <file>bwpapi</file>
-  <name>Bergwaldprojekt API</name>
-  <description>Projektspezifische CiviCRM-API-Funktionen</description>
+<extension key="de.bergwaldprojekt.baumspenden" type="module">
+  <file>baumspenden</file>
+  <name>Bergwaldprojekt Baumspenden</name>
+  <description>API und Konfiguration für Baumspenden-Funktionalität</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>SYSTOPIA</author>
     <email>info@systopia.de</email>
   </maintainer>
   <urls>
-    <url desc="Main Extension Page">http://github.com/systopia/de.bergwaldprojekt.bwpapi</url>
-    <url desc="Documentation">http://github.com/systopia/de.bergwaldprojekt.bwpapi/blob/master/README.md</url>
-    <url desc="Support">http://github.com/systopia/de.bergwaldprojekt.bwpapi/issues</url>
+    <url desc="Main Extension Page">http://github.com/systopia/de.bergwaldprojekt.baumspenden</url>
+    <url desc="Documentation">http://github.com/systopia/de.bergwaldprojekt.baumspenden/blob/master/README.md</url>
+    <url desc="Support">http://github.com/systopia/de.bergwaldprojekt.baumspenden/issues</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
   <releaseDate></releaseDate>
@@ -26,6 +26,6 @@
     <ext>org.project60.sepa</ext>
   </requires>
   <civix>
-    <namespace>CRM/Bwpapi</namespace>
+    <namespace>CRM/Baumspenden</namespace>
   </civix>
 </extension>

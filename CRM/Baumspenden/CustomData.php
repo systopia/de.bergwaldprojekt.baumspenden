@@ -32,7 +32,7 @@ if (!defined('CUSTOM_DATA_HELPER_LOG_ERROR')) {
   define('CUSTOM_DATA_HELPER_LOG_ERROR', 5);
 }
 
-class CRM_Bwpapi_CustomData {
+class CRM_Baumspenden_CustomData {
 
   /** caches custom field data, indexed by group name */
   protected static $custom_group2name  = NULL;

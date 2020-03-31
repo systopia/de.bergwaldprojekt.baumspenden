@@ -1,15 +1,15 @@
 <?php
 
-require_once 'bwpapi.civix.php';
-use CRM_Bwpapi_ExtensionUtil as E;
+require_once 'baumspenden.civix.php';
+use CRM_Baumspenden_ExtensionUtil as E;
 
 /**
  * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
-function bwpapi_civicrm_config(&$config) {
-  _bwpapi_civix_civicrm_config($config);
+function baumspenden_civicrm_config(&$config) {
+  _baumspenden_civix_civicrm_config($config);
 }
 
 /**
@@ -17,8 +17,8 @@ function bwpapi_civicrm_config(&$config) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
  */
-function bwpapi_civicrm_xmlMenu(&$files) {
-  _bwpapi_civix_civicrm_xmlMenu($files);
+function baumspenden_civicrm_xmlMenu(&$files) {
+  _baumspenden_civix_civicrm_xmlMenu($files);
 }
 
 /**
@@ -26,8 +26,8 @@ function bwpapi_civicrm_xmlMenu(&$files) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
-function bwpapi_civicrm_install() {
-  _bwpapi_civix_civicrm_install();
+function baumspenden_civicrm_install() {
+  _baumspenden_civix_civicrm_install();
 }
 
 /**
@@ -35,8 +35,8 @@ function bwpapi_civicrm_install() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
  */
-function bwpapi_civicrm_postInstall() {
-  _bwpapi_civix_civicrm_postInstall();
+function baumspenden_civicrm_postInstall() {
+  _baumspenden_civix_civicrm_postInstall();
 }
 
 /**
@@ -44,8 +44,8 @@ function bwpapi_civicrm_postInstall() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
-function bwpapi_civicrm_uninstall() {
-  _bwpapi_civix_civicrm_uninstall();
+function baumspenden_civicrm_uninstall() {
+  _baumspenden_civix_civicrm_uninstall();
 }
 
 /**
@@ -53,11 +53,11 @@ function bwpapi_civicrm_uninstall() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
-function bwpapi_civicrm_enable() {
-  _bwpapi_civix_civicrm_enable();
+function baumspenden_civicrm_enable() {
+  _baumspenden_civix_civicrm_enable();
 
-  require_once 'CRM/Bwpapi/CustomData.php';
-  $customData = new CRM_Bwpapi_CustomData(E::LONG_NAME);
+  require_once 'CRM/Baumspenden/CustomData.php';
+  $customData = new CRM_Baumspenden_CustomData(E::LONG_NAME);
   $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_period.json');
   $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_region.json');
   $customData->syncOptionGroup(__DIR__ . '/resources/option_group_plant_tree.json');
@@ -71,8 +71,8 @@ function bwpapi_civicrm_enable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
  */
-function bwpapi_civicrm_disable() {
-  _bwpapi_civix_civicrm_disable();
+function baumspenden_civicrm_disable() {
+  _baumspenden_civix_civicrm_disable();
 }
 
 /**
@@ -80,8 +80,8 @@ function bwpapi_civicrm_disable() {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
  */
-function bwpapi_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _bwpapi_civix_civicrm_upgrade($op, $queue);
+function baumspenden_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
+  return _baumspenden_civix_civicrm_upgrade($op, $queue);
 }
 
 /**
@@ -92,8 +92,8 @@ function bwpapi_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_managed
  */
-function bwpapi_civicrm_managed(&$entities) {
-  _bwpapi_civix_civicrm_managed($entities);
+function baumspenden_civicrm_managed(&$entities) {
+  _baumspenden_civix_civicrm_managed($entities);
 }
 
 /**
@@ -105,8 +105,8 @@ function bwpapi_civicrm_managed(&$entities) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_caseTypes
  */
-function bwpapi_civicrm_caseTypes(&$caseTypes) {
-  _bwpapi_civix_civicrm_caseTypes($caseTypes);
+function baumspenden_civicrm_caseTypes(&$caseTypes) {
+  _baumspenden_civix_civicrm_caseTypes($caseTypes);
 }
 
 /**
@@ -119,8 +119,8 @@ function bwpapi_civicrm_caseTypes(&$caseTypes) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
  */
-function bwpapi_civicrm_angularModules(&$angularModules) {
-  _bwpapi_civix_civicrm_angularModules($angularModules);
+function baumspenden_civicrm_angularModules(&$angularModules) {
+  _baumspenden_civix_civicrm_angularModules($angularModules);
 }
 
 /**
@@ -128,8 +128,8 @@ function bwpapi_civicrm_angularModules(&$angularModules) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
-function bwpapi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-  _bwpapi_civix_civicrm_alterSettingsFolders($metaDataFolders);
+function baumspenden_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _baumspenden_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
 /**
@@ -139,21 +139,21 @@ function bwpapi_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
  */
-function bwpapi_civicrm_entityTypes(&$entityTypes) {
-  _bwpapi_civix_civicrm_entityTypes($entityTypes);
+function baumspenden_civicrm_entityTypes(&$entityTypes) {
+  _baumspenden_civix_civicrm_entityTypes($entityTypes);
 }
 
 /**
  * Implements hook_civicrm_permission().
  */
-function bwpapi_civicrm_permission(&$permissions) {
+function baumspenden_civicrm_permission(&$permissions) {
   $permissions['access BWP API BWPBaumspende.Submit'] = 'BWP API: Access BWPBaumspende.Submit API';
 }
 
 /**
  * Implements hook_civicrm_alterAPIPermissions().
  */
-function bwpapi_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+function baumspenden_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
   $permissions['b_w_p_baumspende']['submit'] = ['access BWP API BWPBaumspende.Submit'];
 }
 
@@ -164,7 +164,7 @@ function bwpapi_civicrm_alterAPIPermissions($entity, $action, &$params, &$permis
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
  *
-function bwpapi_civicrm_preProcess($formName, &$form) {
+function baumspenden_civicrm_preProcess($formName, &$form) {
 
 } // */
 
@@ -173,8 +173,8 @@ function bwpapi_civicrm_preProcess($formName, &$form) {
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
  *
-function bwpapi_civicrm_navigationMenu(&$menu) {
-  _bwpapi_civix_insert_navigation_menu($menu, 'Mailings', array(
+function baumspenden_civicrm_navigationMenu(&$menu) {
+  _baumspenden_civix_insert_navigation_menu($menu, 'Mailings', array(
     'label' => E::ts('New subliminal message'),
     'name' => 'mailing_subliminal_message',
     'url' => 'civicrm/mailing/subliminal',
@@ -182,5 +182,5 @@ function bwpapi_civicrm_navigationMenu(&$menu) {
     'operator' => 'OR',
     'separator' => 0,
   ));
-  _bwpapi_civix_navigationMenu($menu);
+  _baumspenden_civix_navigationMenu($menu);
 } // */
