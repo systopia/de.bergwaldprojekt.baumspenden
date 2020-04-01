@@ -7,6 +7,27 @@ use CRM_Baumspenden_ExtensionUtil as E;
  */
 class CRM_Baumspenden_Upgrader extends CRM_Baumspenden_Upgrader_Base
 {
-    // TODO: Add custom fields (in install()? - extension was renamed!)
-    // TODO: Add default values for existing custom fields on contributions.
+    public function install()
+    {
+        // Update custom data structures.
+        $customData = new CRM_Baumspenden_CustomData(E::LONG_NAME);
+        $customData->syncOptionGroup(
+            __DIR__ . '/resources/option_group_plant_period.json'
+        );
+        $customData->syncOptionGroup(
+            __DIR__ . '/resources/option_group_plant_region.json'
+        );
+        $customData->syncOptionGroup(
+            __DIR__ . '/resources/option_group_plant_tree.json'
+        );
+        $customData->syncEntities(
+            __DIR__ . '/resources/financial_type_baumspende.json'
+        );
+        $customData->syncCustomGroup(
+            __DIR__ . '/resources/custom_group_baumspende.json'
+        );
+        $customData->syncOptionGroup(
+            __DIR__ . '/resources/option_group_activity_type.json'
+        );
+    }
 }
