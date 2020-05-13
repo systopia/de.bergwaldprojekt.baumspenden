@@ -84,7 +84,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'title' => 'Payment method',
     'type' => CRM_Utils_Type::T_STRING,
     'api.required' => 1,
-    'description' => 'The payment method used to make the donation.',
+    'description' => 'The payment method used to make the donation. One of "sepa_direct_debit", "payment_request", "paypal" and "credit_card".',
   );
   $spec['iban'] = array(
     'name' => 'iban',
@@ -328,6 +328,32 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
         $result['mandate_id'] = $mandate['id'];
         $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
         break;
+      case 'payment_request':
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST;
+        // Donors have to issue the payment themselves, therefore it is pending.
+        $contribution_data['contribution_status_id'] = 'Pending';
+        break;
+      case 'paypal':
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_PAYPAL;
+        // The payment has been initialized by the payment processor, therefore
+        // it is in progress already.
+        $contribution_data['contribution_status_id'] = 'In Progress';
+        break;
+      case 'credit_card':
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_CREDIT_CARD;
+        // The payment has been initialized by the payment processor, therefore
+        // it is in progress already.
+        $contribution_data['contribution_status_id'] = 'In Progress';
+        break;
+      default:
+        throw new Exception(E::ts('Unsupported payment method'));
+    }
+    if (!isset($result['contribution_id'])) {
+      $contribution = civicrm_api3('contribution', 'create', $contribution_data);
+      if ($contribution['is_error']) {
+        throw new Exception($contribution['error_message']);
+      }
+      $result['contribution_id'] = $contribution['id'];
     }
 
     /**
