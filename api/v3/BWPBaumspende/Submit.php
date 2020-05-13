@@ -79,18 +79,25 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
     'api.required' => 0,
     'description' => 'The contact source of the donation initiator.',
   );
+  $spec['payment_mathod'] = array(
+    'name' => 'payment_method',
+    'title' => 'Payment method',
+    'type' => CRM_Utils_Type::T_STRING,
+    'api.required' => 1,
+    'description' => 'The payment method used to make the donation.',
+  );
   $spec['iban'] = array(
     'name' => 'iban',
     'title' => 'IBAN',
     'type' => CRM_Utils_Type::T_STRING,
-    'api.required' => 1,
+    'api.required' => 0,
     'description' => 'The IBAN of the donation initiator\'s bank account.',
   );
   $spec['bic'] = array(
     'name' => 'bic',
     'title' => 'BIC',
     'type' => CRM_Utils_Type::T_STRING,
-    'api.required' => 1,
+    'api.required' => 0,
     'description' => 'The SWIFT-Code (BIC) of the donation initiator\'s bank account.',
   );
   $spec['unit_price'] = array(
@@ -268,20 +275,15 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     /**
      * Create SEPA mandate (with contribution).
      */
-    // TODO: Accept different payment instruments, SEPA being one of them.
     $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
       'name' => 'Baumspende',
     ));
-    $mandate_data = array(
+    $contribution_data = array(
       'contact_id' => $initiator_contact_id,
-      'type' => 'OOFF',
-      'iban' => $params['iban'],
-      'bic' => $params['bic'],
       'amount' => $params['unit_price'] * $params['amount'],
       'financial_type_id' => $financial_type['id'],
       'source' => 'Formular Baumspende',
     );
-
     // Include specific data (region, period, tree species).
     foreach (array(
                'plant_region',
@@ -302,21 +304,31 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       }
       catch (Exception $exception) {
         $option_value = civicrm_api3('OptionValue', 'create', array(
-          'option_group_id' => 'baumspenden_' . $custom_field_name,
-          'name' => $params[$custom_field_name],
-        ));
+            'option_group_id' => 'baumspenden_' . $custom_field_name,
+            'name' => $params[$custom_field_name],
+          ));
         $option_value = reset($option_value['values']);
       }
 
-      $mandate_data['custom_' . $custom_field['id']] = $option_value['value'];
+      $contribution_data['custom_' . $custom_field['id']] = $option_value['value'];
     }
 
-    $mandate = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
-    if ($mandate['is_error']) {
-      throw new Exception($mandate['error_message']);
+    // TODO: Accept different payment instruments, SEPA being one of them.
+    switch ($params['payment_method']) {
+      case 'sepa_direct_debit':
+        $mandate_data = $contribution_data + array(
+            'type' => 'OOFF',
+            'iban' => $params['iban'],
+            'bic' => $params['bic'],
+          );
+        $mandate = civicrm_api3('SepaMandate', 'createfull', $mandate_data);
+        if ($mandate['is_error']) {
+          throw new Exception($mandate['error_message']);
+        }
+        $result['mandate_id'] = $mandate['id'];
+        $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
+        break;
     }
-    $result['mandate_id'] = $mandate['id'];
-    $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
 
     /**
      * Create activity of type "Donation".
