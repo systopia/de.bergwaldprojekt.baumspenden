@@ -264,7 +264,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       'Contact',
       'getorcreate',
       $initiator_data + array(
-        'xcm_profile' => 'baumspenden',
+        'xcm_profile' => CRM_Baumspenden_Submission::XCM_PROFILE,
       ));
     if ($xcm_result['is_error']) {
       throw new Exception($xcm_result['error_message']);
@@ -276,13 +276,13 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
      * Create SEPA mandate (with contribution).
      */
     $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
-      'name' => 'Baumspende',
+      'name' => CRM_Baumspenden_Submission::FINANCIAL_TYPE_NAME,
     ));
     $contribution_data = array(
       'contact_id' => $initiator_contact_id,
       'amount' => $params['unit_price'] * $params['amount'],
       'financial_type_id' => $financial_type['id'],
-      'source' => 'Formular Baumspende',
+      'source' => CRM_Baumspenden_Submission::CONTRIBUTION_SOURCE,
     );
     // Include specific data (region, period, tree species).
     foreach (array(
@@ -400,7 +400,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
 //        'Contact',
 //        'getorcreate',
 //        $presentee_data + array(
-//          'xcm_profile' => 'baumspenden',
+//          'xcm_profile' => CRM_Baumspenden_Submission::XCM_PROFILE,
 //        ));
 //      if ($xcm_result['is_error']) {
 //        throw new Exception($xcm_result['error_message']);
@@ -414,7 +414,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       $present_activity = civicrm_api3('Activity', 'create', array(
         'source_contact_id' => $initiator_contact_id,
         'activity_type_id' => $present_activity_type_id,
-        'subject' => 'Schenkung Baumspende',
+        'subject' => CRM_Baumspenden_Submission::ACTIVITY_SUBJECT_PRESENT,
 //        'target_id' => $presentee_contact_id,
       ));
       $result['present_activity_id'] = $present_activity['id'];
@@ -469,7 +469,7 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
       'target_id' => (isset($initiator_contact_id) ? $initiator_contact_id : NULL),
       'activity_type_id' => $failed_activity_type_id,
       'status_id' => 'Scheduled',
-      'subject' => 'Fehlgeschlagene Baumspende',
+      'subject' => CRM_Baumspenden_Submission::ACTIVITY_SUBJECT_FAILED,
       'details' => '<p>' . $exception->getMessage() . '</p>'
         . '<pre>' . json_encode($params, JSON_PRETTY_PRINT) . '</pre>',
     ));

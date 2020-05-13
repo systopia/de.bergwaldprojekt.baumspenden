@@ -24,4 +24,10 @@ class CRM_Baumspenden_Submission {
   public const PAYMENT_INSTRUMENT_ID_PAYPAL = 1;
   public const PAYMENT_INSTRUMENT_ID_CREDIT_CARD = 1;
 
+  public const XCM_PROFILE = 'baumspenden';
+  public const FINANCIAL_TYPE_NAME = 'Baumspende';
+  public const CONTRIBUTION_SOURCE = 'Formular Baumspende';
+  public const ACTIVITY_SUBJECT_PRESENT = 'Schenkung Baumspende';
+  public const ACTIVITY_SUBJECT_FAILED = 'Fehlgeschlagene Baumspende';
+
 }
