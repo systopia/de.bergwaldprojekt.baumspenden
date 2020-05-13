@@ -286,31 +286,39 @@ function civicrm_api3_b_w_p_baumspende_Submit($params) {
     );
     // Include specific data (region, period, tree species).
     foreach (array(
-               'plant_region',
-               'plant_period',
-               'plant_tree',
-             ) as $custom_field_name) {
+               'unit_price' => FALSE,
+               'amount' => FALSE,
+               'plant_region' => TRUE,
+               'plant_period' => TRUE,
+               'plant_tree' => TRUE,
+             ) as $custom_field_name => $is_option_group) {
       $custom_field = CRM_Baumspenden_CustomData::getCustomField(
         'baumspende',
         'baumspende_' . $custom_field_name
       );
 
       // Resolve or add option values for the custom fields.
-      try {
-        $option_value = civicrm_api3('OptionValue', 'getsingle', array(
-          'option_group_id' => 'baumspenden_' . $custom_field_name,
-          'name' => $params[$custom_field_name],
-        ));
-      }
-      catch (Exception $exception) {
-        $option_value = civicrm_api3('OptionValue', 'create', array(
+      if ($is_option_group) {
+        try {
+          $option_value = civicrm_api3('OptionValue', 'getsingle', array(
             'option_group_id' => 'baumspenden_' . $custom_field_name,
             'name' => $params[$custom_field_name],
           ));
-        $option_value = reset($option_value['values']);
+        }
+        catch (Exception $exception) {
+          $option_value = civicrm_api3('OptionValue', 'create', array(
+            'option_group_id' => 'baumspenden_' . $custom_field_name,
+            'name' => $params[$custom_field_name],
+          ));
+          $option_value = reset($option_value['values']);
+        }
+        $value = $option_value['value'];
+      }
+      else {
+        $value = $params[$custom_field_name];
       }
 
-      $contribution_data['custom_' . $custom_field['id']] = $option_value['value'];
+      $contribution_data['custom_' . $custom_field['id']] = $value;
     }
 
     // TODO: Accept different payment instruments, SEPA being one of them.
