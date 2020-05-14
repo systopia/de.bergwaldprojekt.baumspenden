@@ -16,17 +16,12 @@ use CRM_Baumspenden_ExtensionUtil as E;
 
 class CRM_Baumspenden_Certificate
 {
-    /**
-     * @var int $contact_id
-     *   The ID of the CiviCRM Contact this certificate is issued for.
-     */
-    protected $contact_id;
 
     /**
-     * @var int $amount
-     *   The amount of trees.
+     * @var array $contribution
+     *   The CiviCRM contribution this certificate is issued for.
      */
-    protected $amount;
+    protected $contribution;
 
     /**
      * @var string $mode
@@ -41,29 +36,31 @@ class CRM_Baumspenden_Certificate
     protected $name;
 
     /**
+     * @var string $html
+     *   The HTML contents of the certificate.
+     */
+    protected $html;
+
+    /**
      * CRM_Baumspenden_Certificate constructor.
      *
-     * @param int $contact_id
-     * @param int $amount
+     * @param int $contribution_id
      * @param string $mode
      * @param string $name
      */
-    public function __construct(
-        $contact_id,
-        $amount = 1,
-        $mode = "digital",
-        $name = null
-    ) {
+    public function __construct($contribution_id, $mode = "digital")
+    {
+        $this->contribution = new CRM_Baumspenden_Donation($contribution_id);
+
         // Check if contact exists.
         $contact = civicrm_api3(
             'Contact',
             'getsingle',
             [
-                'id' => $contact_id,
+                'id' => $this->contribution['contact_id'],
                 'return' => ['display_name'],
             ]
         );
-        $this->contact_id = $contact['id'];
 
         // Validate and set mode.
         if (!in_array($mode, ['digital', 'postal'])) {
@@ -75,6 +72,103 @@ class CRM_Baumspenden_Certificate
         $this->mode = $mode;
 
         // Set name to the contact's display name if not set.
+        // TODO: This must be used as a token:
+        //   - either set the custom field value
+        //   - or create a new token for it
+        $name = $this->contribution->get('certificate_name');
         $this->name = (isset($name) ? $name : $contact['display_name']);
+    }
+
+    /**
+     * Renders the certificate.
+     *
+     * @throws \CiviCRM_API3_Exception
+     *   When the configured message template could not be retrieved.
+     */
+    public function render()
+    {
+        // Retrieve message template from configuration.
+        $msg_tpl_id = Civi::settings()->get('baumspenden_msg_tpl_id');
+
+        // Load message template.
+        $msg_tpl = civicrm_api3(
+            'MessageTemplate',
+            'getsingle',
+            ['id' => $msg_tpl_id]
+        );
+        $this->html = $msg_tpl['msg_html'];
+
+        // Prepare message template.
+        \CRM_Contact_Form_Task_PDFLetterCommon::formatMessage($this->html);
+
+        // Replace tokens.
+        $this->replaceTokens();
+    }
+
+    /**
+     * Converts the rendered message template to PDF and downloads it.
+     */
+    public function convertAndDownload() {
+        \CRM_Utils_PDF_Utils::html2pdf(
+            [$this->html],
+            'baumspenden_certificate_' . $this->contribution['id'] . '.pdf'
+        );
+    }
+
+    /**
+     * Replaces contact and contribution tokens in the HTML contents.
+     */
+    protected function replaceTokens()
+    {
+        // Extract tokens from the HTML.
+        $contact_id = $this->contribution['contact_id'];
+        $tokenCategories = self::getTokenCategories();
+        $messageToken = \CRM_Utils_Token::getTokens($this->html);
+        $returnProperties = [];
+        if (isset($messageToken['contact'])) {
+            foreach ($messageToken['contact'] as $key => $value) {
+                $returnProperties[$value] = 1;
+            }
+        }
+        if (isset($messageToken['contribution'])) {
+            foreach ($messageToken['contribution'] as $key => $value) {
+                $returnProperties[$value] = 1;
+            }
+        }
+        [$contact] = \CRM_Utils_Token::getTokenDetails(
+            [$contact_id],
+            $returnProperties,
+            false,
+            false,
+            null,
+            $messageToken,
+            null
+        );
+        $this->html = \CRM_Utils_Token::replaceContactTokens(
+            $this->html,
+            $contact[$contact_id],
+            true,
+            $messageToken
+        );
+        $this->html = \CRM_Utils_Token::replaceHookTokens(
+            $this->html,
+            $contact[$contact_id],
+            $tokenCategories,
+            true
+        );
+        $this->html = CRM_Utils_Token::replaceContributionTokens(
+            $this->html,
+            $this->contribution,
+            true,
+            $messageToken
+        );
+
+        // Render with Smarty, if enabled.
+        if (defined('CIVICRM_MAIL_SMARTY') && CIVICRM_MAIL_SMARTY) {
+            $smarty = \CRM_Core_Smarty::singleton();
+            // also add the contact tokens to the template
+            $smarty->assign_by_ref('contact', $contact);
+            $this->html = $smarty->fetch("string:$this->html");
+        }
     }
 }
