@@ -15,14 +15,14 @@
 use CRM_Baumspenden_ExtensionUtil as E;
 
 /**
- * BWPBaumspende.Submit API specification (optional)
+ * BWPBaumspende.submit API specification (optional)
  * This is used for documentation and validation.
  *
  * @param array $spec description of fields supported by this API call
  * @return void
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/API+Architecture+Standards
  */
-function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
+function _civicrm_api3_b_w_p_baumspende_submit_spec(&$spec) {
   $spec['first_name'] = array(
     'name' => 'first_name',
     'title' => 'First name',
@@ -225,7 +225,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
 }
 
 /**
- * BWPBaumspende.Submit API
+ * BWPBaumspende.submit API
  *
  * @param array $params
  * @return array API result descriptor
@@ -233,7 +233,7 @@ function _civicrm_api3_b_w_p_baumspende_Submit_spec(&$spec) {
  * @see civicrm_api3_create_error
  * @throws API_Exception
  */
-function civicrm_api3_b_w_p_baumspende_Submit($params) {
+function civicrm_api3_b_w_p_baumspende_submit($params) {
   try {
     $result = array();
 

@@ -150,14 +150,14 @@ function baumspenden_civicrm_entityTypes(&$entityTypes) {
  * Implements hook_civicrm_permission().
  */
 function baumspenden_civicrm_permission(&$permissions) {
-  $permissions['access BWP API BWPBaumspende.Submit'] = 'BWP API: Access BWPBaumspende.Submit API';
+  $permissions['access BWP API BWPBaumspende.submit'] = 'BWP API: Access BWPBaumspende.Submit API';
 }
 
 /**
  * Implements hook_civicrm_alterAPIPermissions().
  */
 function baumspenden_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
-  $permissions['b_w_p_baumspende']['submit'] = ['access BWP API BWPBaumspende.Submit'];
+  $permissions['b_w_p_baumspende']['submit'] = ['access BWP API BWPBaumspende.submit'];
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---
