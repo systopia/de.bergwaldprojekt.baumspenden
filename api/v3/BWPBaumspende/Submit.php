@@ -291,6 +291,7 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
                'plant_region' => TRUE,
                'plant_period' => TRUE,
                'plant_tree' => TRUE,
+               'certificate_name' => FALSE,
              ) as $custom_field_name => $is_option_group) {
       $custom_field = CRM_Baumspenden_CustomData::getCustomField(
         'baumspende',
@@ -315,7 +316,7 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
         $value = $option_value['value'];
       }
       else {
-        $value = $params[$custom_field_name];
+        $value = (isset($params[$custom_field_name]) ? $params[$custom_field_name] : NULL);
       }
 
       $contribution_data['custom_' . $custom_field['id']] = $value;

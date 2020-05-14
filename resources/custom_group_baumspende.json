@@ -94,6 +94,22 @@
       "is_active": "1",
       "is_view": "0",
       "in_selector": "1"
+    },
+    {
+      "_lookup": ["column_name", "custom_group_id"],
+      "_translate": ["label"],
+      "weight": "1",
+      "name": "baumspende_certificate_name",
+      "column_name": "certificate_name",
+      "label": "Name auf dem Zertifikat",
+      "data_type": "String",
+      "html_type": "Text",
+      "is_required": "0",
+      "is_searchable": "1",
+      "is_search_range": "0",
+      "is_active": "1",
+      "is_view": "0",
+      "in_selector": "1"
     }
   ]
 }
