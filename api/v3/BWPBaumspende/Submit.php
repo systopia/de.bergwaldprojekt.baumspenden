@@ -79,7 +79,7 @@ function _civicrm_api3_b_w_p_baumspende_submit_spec(&$spec) {
     'api.required' => 0,
     'description' => 'The contact source of the donation initiator.',
   );
-  $spec['payment_mathod'] = array(
+  $spec['payment_method'] = array(
     'name' => 'payment_method',
     'title' => 'Payment method',
     'type' => CRM_Utils_Type::T_STRING,
