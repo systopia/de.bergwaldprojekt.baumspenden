@@ -30,7 +30,7 @@ class CRM_Baumspenden_Donation
      *
      * @throws \CiviCRM_API3_Exception
      */
-    public function __construct($contribution_id = NULL)
+    public function __construct($contribution_id = null)
     {
         if (!empty($contribution_id)) {
             $financial_type = civicrm_api3(
@@ -69,14 +69,15 @@ class CRM_Baumspenden_Donation
     {
         if (array_key_exists($property, $this->contribution)) {
             $value = $this->contribution[$property];
-        }
-        elseif (array_key_exists(
-            $custom_field_key = CRM_Baumspenden_CustomData::getCustomFieldKey('baumspende', 'baumspende.baumspende_' . $property),
+        } elseif (array_key_exists(
+            $custom_field_key = CRM_Baumspenden_CustomData::getCustomFieldKey(
+                'baumspende',
+                'baumspende.baumspende_' . $property
+            ),
             $this->contribution
         )) {
             $value = $this->contribution[$custom_field_key];
-        }
-        else {
+        } else {
             throw new Exception('Property ' . $property . ' not found.');
         }
 
