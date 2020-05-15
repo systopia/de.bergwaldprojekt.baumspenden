@@ -36,7 +36,7 @@ class CRM_Baumspenden_Donation
             $financial_type = civicrm_api3(
                 'FinancialType',
                 'getsingle',
-                ['name' => CRM_Baumspenden_Submission::FINANCIAL_TYPE_NAME]
+                ['name' => CRM_Baumspenden_Configuration::FINANCIAL_TYPE_NAME]
             );
             $contribution = civicrm_api3(
                 'Contribution',

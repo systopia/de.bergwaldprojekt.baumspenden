@@ -264,7 +264,7 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
       'Contact',
       'getorcreate',
       $initiator_data + array(
-        'xcm_profile' => CRM_Baumspenden_Submission::XCM_PROFILE,
+        'xcm_profile' => CRM_Baumspenden_Configuration::XCM_PROFILE,
       ));
     if ($xcm_result['is_error']) {
       throw new Exception($xcm_result['error_message']);
@@ -276,13 +276,13 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
      * Create SEPA mandate (with contribution).
      */
     $financial_type = civicrm_api3('FinancialType', 'getsingle', array(
-      'name' => CRM_Baumspenden_Submission::FINANCIAL_TYPE_NAME,
+      'name' => CRM_Baumspenden_Configuration::FINANCIAL_TYPE_NAME,
     ));
     $contribution_data = array(
       'contact_id' => $initiator_contact_id,
       'amount' => $params['unit_price'] * $params['amount'],
       'financial_type_id' => $financial_type['id'],
-      'source' => CRM_Baumspenden_Submission::CONTRIBUTION_SOURCE,
+      'source' => CRM_Baumspenden_Configuration::CONTRIBUTION_SOURCE,
     );
     // Include custom field data.
     if (empty($params['certificate_name'])) {
@@ -341,18 +341,18 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
         $result['contribution_id'] = $mandate['values'][$mandate['id']]['entity_id'];
         break;
       case 'payment_request':
-        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST;
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Configuration::PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST;
         // Donors have to issue the payment themselves, therefore it is pending.
         $contribution_data['contribution_status_id'] = 'Pending';
         break;
       case 'paypal':
-        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_PAYPAL;
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Configuration::PAYMENT_INSTRUMENT_ID_PAYPAL;
         // The payment has been initialized by the payment processor, therefore
         // it is in progress already.
         $contribution_data['contribution_status_id'] = 'In Progress';
         break;
       case 'credit_card':
-        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Submission::PAYMENT_INSTRUMENT_ID_CREDIT_CARD;
+        $contribution_data['payment_instrument_id'] = CRM_Baumspenden_Configuration::PAYMENT_INSTRUMENT_ID_CREDIT_CARD;
         // The payment has been initialized by the payment processor, therefore
         // it is in progress already.
         $contribution_data['contribution_status_id'] = 'In Progress';
@@ -418,7 +418,7 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
       $present_activity = civicrm_api3('Activity', 'create', array(
         'source_contact_id' => $initiator_contact_id,
         'activity_type_id' => $present_activity_type_id,
-        'subject' => CRM_Baumspenden_Submission::ACTIVITY_SUBJECT_PRESENT,
+        'subject' => CRM_Baumspenden_Configuration::ACTIVITY_SUBJECT_PRESENT,
 //        'target_id' => $presentee_contact_id,
       ));
       $result['present_activity_id'] = $present_activity['id'];
@@ -473,7 +473,7 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
       'target_id' => (isset($initiator_contact_id) ? $initiator_contact_id : NULL),
       'activity_type_id' => $failed_activity_type_id,
       'status_id' => 'Scheduled',
-      'subject' => CRM_Baumspenden_Submission::ACTIVITY_SUBJECT_FAILED,
+      'subject' => CRM_Baumspenden_Configuration::ACTIVITY_SUBJECT_FAILED,
       'details' => '<p>' . $exception->getMessage() . '</p>'
         . '<pre>' . json_encode($params, JSON_PRETTY_PRINT) . '</pre>',
     ));

@@ -75,7 +75,7 @@ class CRM_Baumspenden_Certificate
     public function render()
     {
         // Retrieve message template from configuration.
-        $msg_tpl_id = Civi::settings()->get('baumspenden_msg_tpl_id');
+        $msg_tpl_id = CRM_Baumspenden_Configuration::CERTIFICATE_MESSAGE_TEMPLATE_ID;
 
         // Load message template.
         $msg_tpl = civicrm_api3(
