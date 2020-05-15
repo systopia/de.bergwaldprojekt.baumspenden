@@ -30,12 +30,6 @@ class CRM_Baumspenden_Certificate
     protected $mode;
 
     /**
-     * @var string $name
-     *   The name to appear on the certificate.
-     */
-    protected $name;
-
-    /**
      * @var string $html
      *   The HTML contents of the certificate.
      */
@@ -70,13 +64,6 @@ class CRM_Baumspenden_Certificate
             );
         }
         $this->mode = $mode;
-
-        // Set name to the contact's display name if not set.
-        // TODO: This must be used as a token:
-        //   - either set the custom field value
-        //   - or create a new token for it
-        $name = $this->contribution->get('certificate_name');
-        $this->name = (isset($name) ? $name : $contact['display_name']);
     }
 
     /**

@@ -284,7 +284,10 @@ function civicrm_api3_b_w_p_baumspende_submit($params) {
       'financial_type_id' => $financial_type['id'],
       'source' => CRM_Baumspenden_Submission::CONTRIBUTION_SOURCE,
     );
-    // Include specific data (region, period, tree species).
+    // Include custom field data.
+    if (empty($params['certificate_name'])) {
+      $params['certificate_name'] = "{$params['first_name']} {$params['last_name']}";
+    }
     foreach (array(
                'unit_price' => FALSE,
                'amount' => FALSE,
