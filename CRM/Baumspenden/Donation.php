@@ -51,6 +51,16 @@ class CRM_Baumspenden_Donation
     }
 
     /**
+     * Returns the contribution array.
+     *
+     * @return array
+     *   The CiviCRM contribution.
+     */
+    public function getContribution() {
+        return $this->contribution;
+    }
+
+    /**
      * Returns the value of the contribution's property with the given name.
      * This may be any property natively available on contributions or custom
      * field names in the custom group "baumspende", which will be resolved to

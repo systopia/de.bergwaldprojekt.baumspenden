@@ -27,6 +27,14 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
         'api.default' => 'digital',
         'description' => 'The mode of delivery for the certificate. One of "digital" or "postal".',
     ];
+    $spec['download'] = [
+        'name' => 'download',
+        'title' => 'Download the file',
+        'type' => CRM_Utils_Type::T_BOOLEAN,
+        'api.required' => 0,
+        'api.default' => true,
+        'description' => 'Whether to download the file. If set to false, the generated file contents will be returned.',
+    ];
 }
 
 /**
@@ -50,7 +58,7 @@ function civicrm_api3_b_w_p_baumspende_generate_certificate($params)
         );
 
         $certificate->render();
-        $certificate->convertAndDownload();
+        $certificate_file = $certificate->convertToPDF($params['download']);
 
         return civicrm_api3_create_success();
     } catch (Exception $exception) {
