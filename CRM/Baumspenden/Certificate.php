@@ -116,7 +116,7 @@ class CRM_Baumspenden_Certificate
     public function convertToPDF($store = true, $download = false)
     {
         $contribution_id = $this->contribution->get('id');
-        $filename = 'baumspenden_certificate_'. $contribution_id . '_'. '.pdf';
+        $filename = 'baumspenden_certificate_' . $contribution_id . '.pdf';
         $pdf = \CRM_Utils_PDF_Utils::html2pdf(
             [$this->html],
             $filename,
@@ -125,29 +125,42 @@ class CRM_Baumspenden_Certificate
         if ($download) {
             CRM_Utils_System::civiExit();
         } else {
-            $path = Civi::paths()->getPath(
-                '[civicrm.private]/baumspenden/' . $filename
-            );
-            if (!file_put_contents($path, $pdf)) {
-                throw new Exception('Could not create file.');
-            }
-
-            // Create file entity.
-            $file_types = CRM_Core_OptionGroup::values(
-                'safe_file_extension',
-                true
-            );
-            // TODO: The uri gets cut off and the file entity is stored with
-            //   only the file name, causing the file not being downloadable.
+            // Create file attachment entity.
             $file = civicrm_api3(
-                'File',
+                'Attachment',
                 'create',
                 [
-                    'file_type_id' => $file_types['pdf'],
-                    'uri' => $path,
+                    'entity_table' => 'civicrm_contribution',
+                    'entity_id' => $contribution_id,
+                    'name' => $filename,
                     'mime_type' => 'application/pdf',
+                    'content' => $pdf,
                 ]
             );
+            if ($file['is_error']) {
+                throw new Exception($filename['error_message']);
+            }
+
+            // Remove previous certificate attachment.
+            $custom_field_file = CRM_Baumspenden_CustomData::getCustomFieldKey(
+                'baumspende',
+                'baumspende_certificate_file'
+            );
+            $old_file = civicrm_api3(
+                'Contribution',
+                'getsingle',
+                [
+                    'id' => $contribution_id,
+                    'return' => [$custom_field_file],
+                ]
+            );
+            if (!empty($old_file[$custom_field_file])) {
+                civicrm_api3(
+                    'Attachment',
+                    'delete',
+                    ['id' => $old_file[$custom_field_file]]
+                );
+            }
 
             // Add as value for the custom field.
             civicrm_api3(
@@ -161,8 +174,6 @@ class CRM_Baumspenden_Certificate
                     ) => $file['id'],
                 ]
             );
-
-            // TODO: Create activity and attach certificate file.
         }
     }
 
