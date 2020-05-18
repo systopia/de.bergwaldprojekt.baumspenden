@@ -160,30 +160,28 @@ function baumspenden_civicrm_alterAPIPermissions($entity, $action, &$params, &$p
   $permissions['b_w_p_baumspende']['submit'] = ['access BWP API BWPBaumspende.submit'];
 }
 
-// --- Functions below this ship commented out. Uncomment as required. ---
-
 /**
- * Implements hook_civicrm_preProcess().
+ * Implements hook_civicrm_searchTasks().
  *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_preProcess
- *
-function baumspenden_civicrm_preProcess($formName, &$form) {
-
-} // */
-
-/**
- * Implements hook_civicrm_navigationMenu().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_navigationMenu
- *
-function baumspenden_civicrm_navigationMenu(&$menu) {
-  _baumspenden_civix_insert_navigation_menu($menu, 'Mailings', array(
-    'label' => E::ts('New subliminal message'),
-    'name' => 'mailing_subliminal_message',
-    'url' => 'civicrm/mailing/subliminal',
-    'permission' => 'access CiviMail',
-    'operator' => 'OR',
-    'separator' => 0,
-  ));
-  _baumspenden_civix_navigationMenu($menu);
-} // */
+ * @param $objectType
+ *   the object for this search - activity, campaign, case, contact,
+ *   contribution, event, grant, membership, and pledge are supported.
+ * @param $tasks
+ *   the current set of tasks for that custom field. You can add/remove existing
+ *   tasks. Each task is an array with a title
+ *   (eg 'title' => ts( 'Add Contacts to Group')) and a class
+ *   (eg 'class' => 'CRM_Contact_Form_Task_AddToGroup').
+ *   Optional result (boolean) may also be provided. Class can be an array of
+ *   classes (not sure what that does :( ). The key for new Task(s) should not
+ *   conflict with the keys for core tasks of that $objectType, which can be
+ *   found in CRM/$objectType/Task.php.
+ */
+function baumspenden_civicrm_searchTasks($objectType, &$tasks) {
+  if ($objectType == 'contribution') {
+    $tasks['bwp_baumspenden_generate_certificates'] = array(
+      'title'  => E::ts('Generate Baumspenden Certificates'),
+      'class'  => 'CRM_Baumspenden_Form_Task_GenerateCertificates',
+      'result' => FALSE
+    );
+  }
+}
