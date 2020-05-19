@@ -174,6 +174,8 @@ class CRM_Baumspenden_Certificate
                     ) => $file['id'],
                 ]
             );
+
+            return $file['values'][$file['id']];
         }
     }
 
@@ -183,6 +185,7 @@ class CRM_Baumspenden_Certificate
     protected function replaceTokens()
     {
         // Extract tokens from the HTML.
+        $contribution = $this->contribution->getContribution();
         $contact_id = $this->contribution->get('contact_id');
         $tokenCategories = self::getTokenCategories();
         $messageToken = \CRM_Utils_Token::getTokens($this->html);
@@ -214,7 +217,7 @@ class CRM_Baumspenden_Certificate
         );
         $this->html = CRM_Utils_Token::replaceContributionTokens(
             $this->html,
-            $this->contribution->getContribution(),
+            $contribution,
             true,
             $messageToken
         );

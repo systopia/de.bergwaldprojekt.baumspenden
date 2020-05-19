@@ -60,7 +60,7 @@ function civicrm_api3_b_w_p_baumspende_generate_certificate($params)
         $certificate->render();
         $certificate_file = $certificate->convertToPDF($params['download']);
 
-        return civicrm_api3_create_success();
+        return civicrm_api3_create_success($certificate_file);
     } catch (Exception $exception) {
         return civicrm_api3_create_error($exception->getMessage());
     }
