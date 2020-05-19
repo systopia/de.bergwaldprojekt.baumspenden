@@ -39,23 +39,8 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
         );
     }
 
-
     /**
-     * get the last iteration's values
-     */
-    public function setDefaultValues()
-    {
-        $values = [];
-        return $values;
-    }
-
-
-    /**
-     * PostProcess:
-     *  - store submitted settings as new defaults
-     *  - generate CSV
-     *
-     * @throws CiviCRM_API3_Exception
+     * @throws Exception
      */
     public function postProcess()
     {
@@ -98,6 +83,17 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
         CRM_Utils_System::civiExit();
     }
 
+    /**
+     * Creates a ZIP archive file containing all given certificate files.
+     *
+     * @param $certificates
+     *   An array of File.getsingle API results
+     *
+     * @return string
+     *   The ZIP archive file path.
+     * @throws \Exception
+     *   When generating the ZIP archive file failed.
+     */
     public function createZipArchive($certificates)
     {
         $archiveFileName = tempnam(
