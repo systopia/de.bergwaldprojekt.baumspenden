@@ -11,12 +11,6 @@
 | written permission from the original author(s).        |
 +--------------------------------------------------------*}
 
-<div class="crm-section">
-    <div class="label">{$form.download.label}</div>
-    <div class="content">{$form.download.html}</div>
-    <div class="clear"></div>
-</div>
-
 <div class="crm-submit-buttons">
     {include file="CRM/common/formButtons.tpl" location="bottom"}
 </div>

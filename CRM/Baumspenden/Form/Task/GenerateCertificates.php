@@ -23,12 +23,6 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
 {
     public function buildQuickForm()
     {
-        $this->add(
-            'checkbox',
-            'download',
-            E::ts('Download generated certificates')
-        );
-
         $this->addButtons(
             [
                 [
@@ -66,6 +60,7 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
     public function postProcess()
     {
         $values = $this->exportValues();
+        $config = CRM_Core_Config::singleton();
 
         $financial_type = civicrm_api3(
             'FinancialType',
@@ -94,17 +89,21 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
         }
 
         $zipfile = $this->createZipArchive($certificates);
-        if ($values['download']) {
-            CRM_Utils_System::setHttpHeader('Content-Type', 'application/pdf');
-            CRM_Utils_System::setHttpHeader('Content-Disposition', 'attachment; filename="baumspenden.zip"');
-            echo readfile($zipfile);
-            CRM_Utils_System::civiExit();
-        }
+        CRM_Utils_System::setHttpHeader('Content-Type', 'application/pdf');
+        CRM_Utils_System::setHttpHeader(
+            'Content-Disposition',
+            'attachment; filename="baumspenden.zip"'
+        );
+        echo readfile($zipfile);
+        CRM_Utils_System::civiExit();
     }
 
     public function createZipArchive($certificates)
     {
-        $archiveFileName = tempnam(sys_get_temp_dir(), 'baumspenden' . '-') . '.zip';
+        $archiveFileName = tempnam(
+                sys_get_temp_dir(),
+                'baumspenden' . '-'
+            ) . '.zip';
         $zip = new ZipArchive();
 
         if ($zip->open($archiveFileName, ZIPARCHIVE::CREATE) === true) {
