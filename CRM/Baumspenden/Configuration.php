@@ -19,17 +19,17 @@ class CRM_Baumspenden_Configuration
     /**
      * TODO: Set to actual payment instrument ID
      */
-    public const PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST = 1;
+    public const PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST = 0;
 
     /**
      * TODO: Set to actual payment instrument ID
      */
-    public const PAYMENT_INSTRUMENT_ID_PAYPAL = 1;
+    public const PAYMENT_INSTRUMENT_ID_PAYPAL = 0;
 
     /**
      * TODO: Set to actual payment instrument ID
      */
-    public const PAYMENT_INSTRUMENT_ID_CREDIT_CARD = 1;
+    public const PAYMENT_INSTRUMENT_ID_CREDIT_CARD = 0;
 
     public const XCM_PROFILE = 'baumspenden';
 
@@ -45,4 +45,6 @@ class CRM_Baumspenden_Configuration
      * TODO: Set to actual message template ID.
      */
     public const CERTIFICATE_MESSAGE_TEMPLATE_ID = 78;
+
+    public const GROUP_ID_NEWSLETTER = 19;
 }
