@@ -185,20 +185,30 @@ class CRM_Baumspenden_Certificate
         }
     }
 
+    /**
+     * Sends the PDF certificate file to either the donor or the presentee, if
+     * shipping mode ist "email", or to the office e-mail address, if shipping
+     * mode is "postal".
+     *
+     * @throws \CiviCRM_API3_Exception
+     */
     public function send()
     {
-        // TODO: Add "presentee" custom field on contribution (contact reference).
         if ($this->contribution->get('presentee')) {
             $contact_id = $this->contribution->get('presentee');
+            // TODO: Select cover letter template for presentees.
         } else {
             $contact_id = $this->contribution->get('contact_id');
+            // TODO: Select cover letter template for donors.
         }
         $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
 
         if ($this->mode == 'postal') {
             $to_email = CRM_Baumspenden_Configuration::EMAIL_ADDRESS_OFFICE;
+            // TODO: Select different e-mail template?
         } else {
             $to_email = $contact['email'];
+            // TODO: Select different e-mail template?
         }
 
         $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
