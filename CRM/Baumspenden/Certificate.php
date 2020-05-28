@@ -217,11 +217,10 @@ class CRM_Baumspenden_Certificate
                         'fullPath' => $this->pdf_file['path'],
                         'mime_type' => $this->pdf_file['mime_type'],
                         'cleanName' => $this->pdf_file['name'],
-                    ]
+                    ],
                 ],
             ]
         );
-
         // TODO: Handle sending failures? Create activity?
     }
 
