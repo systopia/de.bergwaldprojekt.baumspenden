@@ -44,8 +44,7 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
      */
     public function postProcess()
     {
-        $values = $this->exportValues();
-        $config = CRM_Core_Config::singleton();
+        $certificates = [];
 
         $financial_type = civicrm_api3(
             'FinancialType',
@@ -104,7 +103,7 @@ class CRM_Baumspenden_Form_Task_GenerateCertificates extends
 
         if ($zip->open($archiveFileName, ZIPARCHIVE::CREATE) === true) {
             foreach ($certificates as $certificate) {
-                $addResult = $zip->addFile(
+                $zip->addFile(
                     $certificate['path'],
                     $certificate['name']
                 );

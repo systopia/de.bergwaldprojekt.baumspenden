@@ -45,7 +45,6 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
  * @return array
  *   API result descriptor
  *
- * @throws API_Exception
  * @see civicrm_api3_create_success
  *
  */

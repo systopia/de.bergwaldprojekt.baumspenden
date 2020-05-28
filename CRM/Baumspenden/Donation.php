@@ -56,7 +56,8 @@ class CRM_Baumspenden_Donation
      * @return array
      *   The CiviCRM contribution.
      */
-    public function getContribution() {
+    public function getContribution()
+    {
         return $this->contribution;
     }
 

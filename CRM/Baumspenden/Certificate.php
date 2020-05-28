@@ -46,14 +46,16 @@ class CRM_Baumspenden_Certificate
      *
      * @param int $contribution_id
      * @param string $mode
-     * @param string $name
+     *
+     * @throws Exception
      */
     public function __construct($contribution_id, $mode = "digital")
     {
         $this->contribution = new CRM_Baumspenden_Donation($contribution_id);
 
-        // Check if contact exists.
-        $contact = civicrm_api3(
+        // Check if the contact exists. The API will thro an exception, if it
+        // doesn't.
+        civicrm_api3(
             'Contact',
             'getsingle',
             [
@@ -93,37 +95,37 @@ class CRM_Baumspenden_Certificate
         $this->pdf_format_id = $msg_tpl['pdf_format_id'];
 
         // Prepare message template.
-        \CRM_Contact_Form_Task_PDFLetterCommon::formatMessage($this->html);
+        CRM_Contact_Form_Task_PDFLetterCommon::formatMessage($this->html);
 
         // Replace tokens.
         $this->replaceTokens();
     }
 
     /**
-     * Converts the rendered message template to PDF and downloads it.
-     *
-     * @param string $filename
-     *   (optional) The file name to use when downloading.
-     *
-     * @param bool $store
-     *   Whether to store the generated file as a file entity. Defaults to TRUE.
+     * Converts the rendered message template to PDF and either downloads it or
+     * creates a File entity and attaches it to the contribution in the custom
+     * file field.
      *
      * @param bool $download
      *   Whether to download the generated file and exit. Defaults to FALSE.
      *
+     * @return array
+     *   The CiviCRM File entity attached to the contribution.
+     *
      * @throws \Exception
      */
-    public function convertToPDF($store = true, $download = false)
+    public function convertToPDF($download = false)
     {
         $contribution_id = $this->contribution->get('id');
         $filename = 'baumspenden_certificate_' . $contribution_id . '.pdf';
-        $pdf = \CRM_Utils_PDF_Utils::html2pdf(
+        $pdf = CRM_Utils_PDF_Utils::html2pdf(
             [$this->html],
             $filename,
             !$download
         );
         if ($download) {
             CRM_Utils_System::civiExit();
+            return false;
         } else {
             // Create file attachment entity.
             $file = civicrm_api3(
@@ -138,7 +140,7 @@ class CRM_Baumspenden_Certificate
                 ]
             );
             if ($file['is_error']) {
-                throw new Exception($filename['error_message']);
+                throw new Exception($file['error_message']);
             }
 
             // Remove previous certificate attachment.
@@ -181,6 +183,8 @@ class CRM_Baumspenden_Certificate
 
     /**
      * Replaces contact and contribution tokens in the HTML contents.
+     *
+     * @throws Exception
      */
     protected function replaceTokens()
     {
@@ -188,7 +192,7 @@ class CRM_Baumspenden_Certificate
         $contribution = $this->contribution->getContribution();
         $contact_id = $this->contribution->get('contact_id');
         $tokenCategories = self::getTokenCategories();
-        $messageToken = \CRM_Utils_Token::getTokens($this->html);
+        $messageToken = CRM_Utils_Token::getTokens($this->html);
         $returnProperties = [];
         if (isset($messageToken['contact'])) {
             foreach ($messageToken['contact'] as $key => $value) {
@@ -200,7 +204,7 @@ class CRM_Baumspenden_Certificate
                 $returnProperties[$value] = 1;
             }
         }
-        [$contact] = \CRM_Utils_Token::getTokenDetails(
+        [$contact] = CRM_Utils_Token::getTokenDetails(
             [$contact_id],
             $returnProperties,
             false,
@@ -209,7 +213,7 @@ class CRM_Baumspenden_Certificate
             $messageToken,
             null
         );
-        $this->html = \CRM_Utils_Token::replaceContactTokens(
+        $this->html = CRM_Utils_Token::replaceContactTokens(
             $this->html,
             $contact[$contact_id],
             true,
@@ -221,7 +225,7 @@ class CRM_Baumspenden_Certificate
             true,
             $messageToken
         );
-        $this->html = \CRM_Utils_Token::replaceHookTokens(
+        $this->html = CRM_Utils_Token::replaceHookTokens(
             $this->html,
             $contact[$contact_id],
             $tokenCategories,
@@ -230,7 +234,7 @@ class CRM_Baumspenden_Certificate
 
         // Render with Smarty, if enabled.
         if (defined('CIVICRM_MAIL_SMARTY') && CIVICRM_MAIL_SMARTY) {
-            $smarty = \CRM_Core_Smarty::singleton();
+            $smarty = CRM_Core_Smarty::singleton();
             // also add the contact tokens to the template
             $smarty->assign_by_ref('contact', $contact);
             $this->html = $smarty->fetch("string:$this->html");
@@ -244,13 +248,13 @@ class CRM_Baumspenden_Certificate
      */
     protected static function getTokenCategories()
     {
-        if (!isset(\Civi::$statics[__CLASS__]['token_categories'])) {
+        if (!isset(Civi::$statics[__CLASS__]['token_categories'])) {
             $tokens = [];
-            \CRM_Utils_Hook::tokens($tokens);
-            \Civi::$statics[__CLASS__]['token_categories'] = array_keys(
+            CRM_Utils_Hook::tokens($tokens);
+            Civi::$statics[__CLASS__]['token_categories'] = array_keys(
                 $tokens
             );
         }
-        return \Civi::$statics[__CLASS__]['token_categories'];
+        return Civi::$statics[__CLASS__]['token_categories'];
     }
 }
