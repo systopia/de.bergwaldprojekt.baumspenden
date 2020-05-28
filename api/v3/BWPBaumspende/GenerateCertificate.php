@@ -24,7 +24,7 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
         'title' => 'Certificate mode',
         'type' => CRM_Utils_Type::T_STRING,
         'api.required' => 0,
-        'api.default' => 'digital',
+        'api.default' => 'email',
         'description' => 'The mode of delivery for the certificate. One of "digital" or "postal".',
     ];
     $spec['download'] = [
@@ -32,7 +32,7 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
         'title' => 'Download the file',
         'type' => CRM_Utils_Type::T_BOOLEAN,
         'api.required' => 0,
-        'api.default' => true,
+        'api.default' => false,
         'description' => 'Whether to download the file. If set to false, the generated file contents will be returned.',
     ];
 }

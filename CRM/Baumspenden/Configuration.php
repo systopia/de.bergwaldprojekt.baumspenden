@@ -44,7 +44,14 @@ class CRM_Baumspenden_Configuration
     /**
      * TODO: Set to actual message template ID.
      */
-    public const CERTIFICATE_MESSAGE_TEMPLATE_ID = 78;
+    public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 78;
+
+    /**
+     * TODO: Set to actual message template ID.
+     */
+    public const MESSAGE_TEMPLATE_ID_EMAIL = 65;
 
     public const GROUP_ID_NEWSLETTER = 19;
+
+    public const EMAIL_ADDRESS_OFFICE = 'baumspenden@bergwaldprojekt.de';
 }

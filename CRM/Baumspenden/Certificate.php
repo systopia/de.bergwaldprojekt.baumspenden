@@ -25,7 +25,7 @@ class CRM_Baumspenden_Certificate
 
     /**
      * @var string $mode
-     *   Either "digital" or "postal".
+     *   Either "email" or "postal".
      */
     protected $mode;
 
@@ -42,6 +42,12 @@ class CRM_Baumspenden_Certificate
     protected $pdf_format_id;
 
     /**
+     * @var array $pdf_file
+     *   The CiviCRM File entity representing the PDF file.
+     */
+    protected $pdf_file;
+
+    /**
      * CRM_Baumspenden_Certificate constructor.
      *
      * @param int $contribution_id
@@ -49,7 +55,7 @@ class CRM_Baumspenden_Certificate
      *
      * @throws Exception
      */
-    public function __construct($contribution_id, $mode = "digital")
+    public function __construct($contribution_id, $mode = "email")
     {
         $this->contribution = new CRM_Baumspenden_Donation($contribution_id);
 
@@ -65,7 +71,7 @@ class CRM_Baumspenden_Certificate
         );
 
         // Validate and set mode.
-        if (!in_array($mode, ['digital', 'postal'])) {
+        if (!in_array($mode, ['email', 'postal'])) {
             throw new Exception(
                 E::ts('Invalid certificate mode %1'),
                 [1 => $mode]
@@ -82,14 +88,11 @@ class CRM_Baumspenden_Certificate
      */
     public function render()
     {
-        // Retrieve message template from configuration.
-        $msg_tpl_id = CRM_Baumspenden_Configuration::CERTIFICATE_MESSAGE_TEMPLATE_ID;
-
         // Load message template.
         $msg_tpl = civicrm_api3(
             'MessageTemplate',
             'getsingle',
-            ['id' => $msg_tpl_id]
+            ['id' => CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_CERTIFICATE]
         );
         $this->html = $msg_tpl['msg_html'];
         $this->pdf_format_id = $msg_tpl['pdf_format_id'];
@@ -177,8 +180,49 @@ class CRM_Baumspenden_Certificate
                 ]
             );
 
-            return $file['values'][$file['id']];
+            $this->pdf_file = $file['values'][$file['id']];
+            return $this->pdf_file;
         }
+    }
+
+    public function send()
+    {
+        // TODO: Add "presentee" custom field on contribution (contact reference).
+        if ($this->contribution->get('presentee')) {
+            $contact_id = $this->contribution->get('presentee');
+        } else {
+            $contact_id = $this->contribution->get('contact_id');
+        }
+        $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
+
+        if ($this->mode == 'postal') {
+            $to_email = CRM_Baumspenden_Configuration::EMAIL_ADDRESS_OFFICE;
+        } else {
+            $to_email = $contact['email'];
+        }
+
+        $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
+        $result = civicrm_api3(
+            'MessageTemplate',
+            'send',
+            [
+                'id' => CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL,
+                'contact_id' => $contact_id,
+                'template_params' => "",
+                'from' => reset($from_email),
+                'to_name' => $contact['display_name'],
+                'to_email' => $to_email,
+                'attachments' => [
+                    $this->pdf_file['id'] => [
+                        'fullPath' => $this->pdf_file['path'],
+                        'mime_type' => $this->pdf_file['mime_type'],
+                        'cleanName' => $this->pdf_file['name'],
+                    ]
+                ],
+            ]
+        );
+
+        // TODO: Handle sending failures? Create activity?
     }
 
     /**

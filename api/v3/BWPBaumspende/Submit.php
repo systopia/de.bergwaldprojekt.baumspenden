@@ -235,6 +235,15 @@ function _civicrm_api3_b_w_p_baumspende_submit_spec(&$spec) {
 function civicrm_api3_b_w_p_baumspende_submit($params) {
   try {
     $donation = CRM_Baumspenden_Donation::create($params);
+
+    $certificate = new CRM_Baumspenden_Certificate(
+      $donation->get('id'),
+      $params['shipping_mode']
+    );
+    $certificate->render();
+    $certificate->convertToPDF();
+    $certificate->send();
+
     return civicrm_api3_create_success(
       [$donation->get('id') => $donation->getContribution()]
     );
