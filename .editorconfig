@@ -455,7 +455,7 @@ ij_javascript_wrap_comments = true
 
 [{*.ctp, *.engine, *.hphp, *.inc, *.install, *.module, *.php, *.php4, *.php5, *.phtml, *.profile, *.test, *.theme}]
 indent_size = 4
-max_line_length = 120
+max_line_length = 80
 tab_width = 4
 ij_continuation_indent_size = 4
 ij_php_align_assignments = false
