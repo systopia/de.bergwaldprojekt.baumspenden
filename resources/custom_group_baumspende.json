@@ -126,6 +126,22 @@
       "is_active": "1",
       "is_view": "0",
       "in_selector": "1"
+    },
+    {
+      "_lookup": ["column_name", "custom_group_id"],
+      "_translate": ["label"],
+      "weight": "1",
+      "name": "baumspende_presentee",
+      "column_name": "presentee",
+      "label": "Verschenkt an",
+      "data_type": "ContactReference",
+      "html_type": "Autocomplete-Select",
+      "is_required": "0",
+      "is_searchable": "1",
+      "is_search_range": "1",
+      "is_active": "1",
+      "is_view": "0",
+      "in_selector": "1"
     }
   ]
 }

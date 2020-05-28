@@ -83,7 +83,7 @@ class CRM_Baumspenden_Donation
         } elseif (array_key_exists(
             $custom_field_key = CRM_Baumspenden_CustomData::getCustomFieldKey(
                 'baumspende',
-                'baumspende.baumspende_' . $property
+                'baumspende_' . $property
             ),
             $this->contribution
         )) {
@@ -123,20 +123,29 @@ class CRM_Baumspenden_Donation
                 $params['newsletter'] = reset($params['newsletter']);
             }
 
+            if (!empty($params['as_present'])) {
+                if (
+                    empty($params['presentee_first_name'])
+                    || empty($params['presentee_last_name'])
+                ) {
+                    throw new Exception(E::ts('Missing mandatory parameter(s): one of presentee_first_name, presentee_last_name'));
+                }
+            }
+
             // Require e-mail address(es) when shipping_mode is "email"
             if ($params['shipping_mode'] == 'email') {
-                if (empty($params['email'])) {
-                    throw new Exception(
-                        E::ts('Mandatory parameter "email" missing.')
-                    );
-                }
                 if (
                     !empty($params['as_present'])
                     && !empty($params['presentee_shipping'])
                     && empty($params['presentee_email'])
                 ) {
                     throw new Exception(
-                        E::ts('Mandatory parameter "presentee_email" missing.')
+                        E::ts('Mandatory parameter missing: presentee_email')
+                    );
+                }
+                if (empty($params['email'])) {
+                    throw new Exception(
+                        E::ts('Mandatory parameter missing: email')
                     );
                 }
             }
@@ -154,7 +163,7 @@ class CRM_Baumspenden_Donation
                     ) {
                         throw new Exception(
                             E::ts(
-                                'Missing parameter(s), one of "presentee_street_adress", "presentee_postal_code", "presentee_city"'
+                                'Missing mandatory parameter(s): one of presentee_street_adress, presentee_postal_code, presentee_city'
                             )
                         );
                     }
@@ -165,14 +174,32 @@ class CRM_Baumspenden_Donation
                 ) {
                     throw new Exception(
                         E::ts(
-                            'Missing parameter(s), one of "street_adress", "postal_code", "city"'
+                            'Missing mandatory parameter(s): one of street_adress, postal_code, city'
                         )
                     );
                 }
             }
 
             // Create contribution.
-            $donation->contribution = self::createContribution($params);
+            $initiator_contact_id = self::retrieveContact($params);
+            if (!empty($params['as_present'])) {
+                $presentee_contact_id = self::retrieveContact(
+                    [
+                        'first_name' => $params['presentee_first_name'],
+                        'last_name' => $params['presentee_last_name'],
+                        'email' => (!empty($params['presentee_email']) ? $params['presentee_email'] : null),
+                        'street_address' => (!empty($params['presentee_street_address']) ? $params['presentee_street_address'] : null),
+                        'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : null),
+                        'postal_code' => (!empty($params['presentee_postal_code']) ? $params['presentee_postal_code'] : null),
+                        'city' => (!empty($params['presentee_city']) ? $params['presentee_city'] : null),
+                    ]
+                );
+                $params['presentee'] = $presentee_contact_id;
+            }
+            $donation->contribution = self::createContribution(
+                $params,
+                $initiator_contact_id
+            );
 
             // Create contribution activity.
             $donation->createContributionActivity();
@@ -373,10 +400,8 @@ class CRM_Baumspenden_Donation
      *
      * @throws \Exception
      */
-    protected
-    static function retrieveContact(
-        $params
-    ) {
+    protected static function retrieveContact($params)
+    {
         $initiator_data = array_intersect_key(
             $params,
             array_fill_keys(
@@ -445,6 +470,7 @@ class CRM_Baumspenden_Donation
                 'plant_period' => true,
                 'plant_tree' => true,
                 'certificate_name' => false,
+                'presentee' => false,
             ] as $custom_field_name => $is_option_group
         ) {
             $custom_field = CRM_Baumspenden_CustomData::getCustomField(
@@ -495,9 +521,9 @@ class CRM_Baumspenden_Donation
      */
     protected
     static function createContribution(
-        $params
+        $params,
+        $initiator_contact_id
     ) {
-        $initiator_contact_id = self::retrieveContact($params);
         $contribution_data = self::prepareContributionData(
             $params,
             $initiator_contact_id
