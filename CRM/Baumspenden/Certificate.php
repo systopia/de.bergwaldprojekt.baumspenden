@@ -59,7 +59,7 @@ class CRM_Baumspenden_Certificate
     {
         $this->contribution = new CRM_Baumspenden_Donation($contribution_id);
 
-        // Check if the contact exists. The API will thro an exception, if it
+        // Check if the contact exists. The API will throw an exception, if it
         // doesn't.
         civicrm_api3(
             'Contact',
@@ -187,7 +187,7 @@ class CRM_Baumspenden_Certificate
 
     /**
      * Sends the PDF certificate file to either the donor or the presentee, if
-     * shipping mode ist "email", or to the office e-mail address, if shipping
+     * shipping mode is "email", or to the office e-mail address, if shipping
      * mode is "postal".
      *
      * @throws \CiviCRM_API3_Exception
@@ -202,6 +202,8 @@ class CRM_Baumspenden_Certificate
             // TODO: Select cover letter template for donors.
         }
         $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
+
+        // TODO: Render cover letter PDF from message template.
 
         if ($this->mode == 'postal') {
             $to_email = CRM_Baumspenden_Configuration::EMAIL_ADDRESS_OFFICE;
@@ -228,6 +230,7 @@ class CRM_Baumspenden_Certificate
                         'mime_type' => $this->pdf_file['mime_type'],
                         'cleanName' => $this->pdf_file['name'],
                     ],
+                    // TODO: Add cover letter PDF file as attachment.
                 ],
             ]
         );
@@ -243,7 +246,11 @@ class CRM_Baumspenden_Certificate
     {
         // Extract tokens from the HTML.
         $contribution = $this->contribution->getContribution();
-        $contact_id = $this->contribution->get('contact_id');
+        if ($this->contribution->get('presentee')) {
+            $contact_id = $this->contribution->get('presentee');
+        } else {
+            $contact_id = $this->contribution->get('contact_id');
+        }
         $tokenCategories = self::getTokenCategories();
         $messageToken = CRM_Utils_Token::getTokens($this->html);
         $returnProperties = [];
