@@ -42,6 +42,18 @@ class CRM_Baumspenden_Certificate
     protected $pdf_format_id;
 
     /**
+     * @var string $cover_letter_html
+     *   The HTML contents of the cover letter.
+     */
+    protected $cover_letter_html;
+
+    /**
+     * @var int $cover_letter_pdf_format_id
+     *   The PDF format ID to use with the cover letter message template.
+     */
+    protected $cover_letter_pdf_format_id;
+
+    /**
      * @var array $pdf_file
      *   The CiviCRM File entity representing the PDF file.
      */
@@ -58,6 +70,9 @@ class CRM_Baumspenden_Certificate
     public function __construct($contribution_id, $mode = "email")
     {
         $this->contribution = new CRM_Baumspenden_Donation($contribution_id);
+
+        // Load PDF file ID from custom field.
+        $this->pdf_file = $this->getPDFFile();
 
         // Check if the contact exists. The API will throw an exception, if it
         // doesn't.
@@ -81,18 +96,45 @@ class CRM_Baumspenden_Certificate
     }
 
     /**
+     * Retrieves the certificate PDF file entity from the custom field on the
+     * contribution.
+     *
+     * @return array
+     * @throws \CiviCRM_API3_Exception
+     */
+    protected function getPDFFile()
+    {
+        $file = null;
+        $file_id = $this->contribution->get(
+            CRM_Baumspenden_CustomData::getCustomFieldKey(
+                'baumspende',
+                'baumspende_certificate_file'
+            )
+        );
+        if (!empty($file_id)) {
+            $file = civicrm_api3(
+                'Attachment',
+                'getsingle',
+                ['id' => $file_id]
+            );
+        }
+        return $file;
+    }
+
+    /**
      * Renders the certificate.
      *
      * @throws \CiviCRM_API3_Exception
      *   When the configured message template could not be retrieved.
      */
-    public function render()
-    {
+    public function render(
+        $msg_tpl_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_CERTIFICATE
+    ) {
         // Load message template.
         $msg_tpl = civicrm_api3(
             'MessageTemplate',
             'getsingle',
-            ['id' => CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_CERTIFICATE]
+            ['id' => $msg_tpl_id]
         );
         $this->html = $msg_tpl['msg_html'];
         $this->pdf_format_id = $msg_tpl['pdf_format_id'];
@@ -101,7 +143,40 @@ class CRM_Baumspenden_Certificate
         CRM_Contact_Form_Task_PDFLetterCommon::formatMessage($this->html);
 
         // Replace tokens.
-        $this->replaceTokens();
+        $this->replaceTokens($this->html);
+    }
+
+    /**
+     * Renders the cover letter for the certificate.
+     *
+     * @throws \CiviCRM_API3_Exception
+     */
+    public function renderCoverLetter()
+    {
+        if ($this->contribution->get('presentee')) {
+            $contact_id = $this->contribution->get('presentee');
+            $template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE;
+        } else {
+            $contact_id = $this->contribution->get('contact_id');
+            $template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER;
+        }
+        $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
+
+        $msg_tpl = civicrm_api3(
+            'MessageTemplate',
+            'getsingle',
+            ['id' => $template_id]
+        );
+        $this->cover_letter_html = $msg_tpl['msg_html'];
+        $this->cover_letter_pdf_format_id = $msg_tpl['pdf_format_id'];
+
+        // Prepare message template.
+        CRM_Contact_Form_Task_PDFLetterCommon::formatMessage(
+            $this->cover_letter_html
+        );
+
+        // Replace tokens.
+        $this->replaceTokens($this->cover_letter_html);
     }
 
     /**
@@ -124,7 +199,8 @@ class CRM_Baumspenden_Certificate
         $pdf = CRM_Utils_PDF_Utils::html2pdf(
             [$this->html],
             $filename,
-            !$download
+            !$download,
+            $this->pdf_format_id
         );
         if ($download) {
             CRM_Utils_System::civiExit();
@@ -196,21 +272,45 @@ class CRM_Baumspenden_Certificate
     {
         if ($this->contribution->get('presentee')) {
             $contact_id = $this->contribution->get('presentee');
-            // TODO: Select cover letter template for presentees.
+            $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE;
         } else {
             $contact_id = $this->contribution->get('contact_id');
-            // TODO: Select cover letter template for donors.
+            $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER;
         }
         $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
 
-        // TODO: Render cover letter PDF from message template.
+        // Render cover letter PDF from message template.
+        $this->renderCoverLetter();
+        $cover_letter_pdf = CRM_Utils_PDF_Utils::html2pdf(
+            [$this->cover_letter_html],
+            'baumspenden_anschreiben.pdf',
+            true,
+            $this->cover_letter_pdf_format_id
+        );
+        $cover_letter_file = civicrm_api3(
+            'Attachment',
+            'create',
+            [
+                'entity_table' => 'civicrm_contribution',
+                'entity_id' => $this->contribution->get('id'),
+                'name' => 'baumspenden_certificate_' . $this->contribution->get(
+                        'id'
+                    ) . '_anschreiben.pdf',
+                'mime_type' => 'application/pdf',
+                'content' => $cover_letter_pdf,
+            ]
+        );
+        if ($cover_letter_file['is_error']) {
+            throw new Exception($file['error_message']);
+        }
+        $cover_letter_file = $cover_letter_file['values'][$cover_letter_file['id']];
 
         if ($this->mode == 'postal') {
             $to_email = CRM_Baumspenden_Configuration::EMAIL_ADDRESS_OFFICE;
-            // TODO: Select different e-mail template?
+            $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL_OFFICE;
         } else {
             $to_email = $contact['email'];
-            // TODO: Select different e-mail template?
+            $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL;
         }
 
         $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
@@ -218,23 +318,35 @@ class CRM_Baumspenden_Certificate
             'MessageTemplate',
             'send',
             [
-                'id' => CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL,
+                'id' => $email_template_id,
                 'contact_id' => $contact_id,
                 'template_params' => "",
                 'from' => reset($from_email),
                 'to_name' => $contact['display_name'],
                 'to_email' => $to_email,
                 'attachments' => [
+                    $cover_letter_file['id'] => [
+                        'fullPath' => $cover_letter_file['path'],
+                        'mime_type' => $cover_letter_file['mime_type'],
+                        'cleanName' => $cover_letter_file['name'],
+                    ],
                     $this->pdf_file['id'] => [
                         'fullPath' => $this->pdf_file['path'],
                         'mime_type' => $this->pdf_file['mime_type'],
                         'cleanName' => $this->pdf_file['name'],
                     ],
-                    // TODO: Add cover letter PDF file as attachment.
                 ],
             ]
         );
-        // TODO: Handle sending failures? Create activity?
+        // Remove cover letter file attachment.
+        civicrm_api3(
+            'Attachment',
+            'delete',
+            [
+                'id' => $cover_letter_file['id'],
+            ]
+        );
+        // TODO: Handle sending failures? Create activity.
     }
 
     /**
@@ -242,7 +354,7 @@ class CRM_Baumspenden_Certificate
      *
      * @throws Exception
      */
-    protected function replaceTokens()
+    protected function replaceTokens(&$html)
     {
         // Extract tokens from the HTML.
         $contribution = $this->contribution->getContribution();
@@ -252,7 +364,7 @@ class CRM_Baumspenden_Certificate
             $contact_id = $this->contribution->get('contact_id');
         }
         $tokenCategories = self::getTokenCategories();
-        $messageToken = CRM_Utils_Token::getTokens($this->html);
+        $messageToken = CRM_Utils_Token::getTokens($html);
         $returnProperties = [];
         if (isset($messageToken['contact'])) {
             foreach ($messageToken['contact'] as $key => $value) {
@@ -273,20 +385,20 @@ class CRM_Baumspenden_Certificate
             $messageToken,
             null
         );
-        $this->html = CRM_Utils_Token::replaceContactTokens(
-            $this->html,
+        $html = CRM_Utils_Token::replaceContactTokens(
+            $html,
             $contact[$contact_id],
             true,
             $messageToken
         );
-        $this->html = CRM_Utils_Token::replaceContributionTokens(
-            $this->html,
+        $html = CRM_Utils_Token::replaceContributionTokens(
+            $html,
             $contribution,
             true,
             $messageToken
         );
-        $this->html = CRM_Utils_Token::replaceHookTokens(
-            $this->html,
+        $html = CRM_Utils_Token::replaceHookTokens(
+            $html,
             $contact[$contact_id],
             $tokenCategories,
             true
@@ -294,10 +406,11 @@ class CRM_Baumspenden_Certificate
 
         // Render with Smarty, if enabled.
         if (defined('CIVICRM_MAIL_SMARTY') && CIVICRM_MAIL_SMARTY) {
+            /* @var CRM_Core_Smarty $smarty */
             $smarty = CRM_Core_Smarty::singleton();
             // also add the contact tokens to the template
             $smarty->assign_by_ref('contact', $contact);
-            $this->html = $smarty->fetch("string:$this->html");
+            $html = $smarty->fetch("string:$html");
         }
     }
 

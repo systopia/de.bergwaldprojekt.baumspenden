@@ -15,14 +15,14 @@
 use CRM_Baumspenden_ExtensionUtil as E;
 
 /**
- * BWPBaumspende.generate_certificate API specification (optional)
+ * BWPBaumspende.send_certificate API specification (optional)
  * This is used for documentation and validation.
  *
  * @param array $spec description of fields supported by this API call
  *
  * @see https://docs.civicrm.org/dev/en/latest/framework/api-architecture/
  */
-function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
+function _civicrm_api3_b_w_p_baumspende_send_certificate_spec(&$spec)
 {
     $spec['contribution_id'] = [
         'name' => 'contribution_id',
@@ -39,18 +39,10 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
         'api.default' => 'email',
         'description' => 'The mode of delivery for the certificate. One of "digital" or "postal".',
     ];
-    $spec['download'] = [
-        'name' => 'download',
-        'title' => 'Download the file',
-        'type' => CRM_Utils_Type::T_BOOLEAN,
-        'api.required' => 0,
-        'api.default' => false,
-        'description' => 'Whether to download the file. If set to false, the generated file contents will be returned.',
-    ];
 }
 
 /**
- * BWPBaumspende.generate_certificate API
+ * BWPBaumspende.send_certificate API
  *
  * @param array $params
  *
@@ -60,7 +52,7 @@ function _civicrm_api3_b_w_p_baumspende_generate_certificate_spec(&$spec)
  * @see civicrm_api3_create_success
  *
  */
-function civicrm_api3_b_w_p_baumspende_generate_certificate($params)
+function civicrm_api3_b_w_p_baumspende_send_certificate($params)
 {
     try {
         $certificate = new CRM_Baumspenden_Certificate(
@@ -68,8 +60,7 @@ function civicrm_api3_b_w_p_baumspende_generate_certificate($params)
             $params['mode']
         );
 
-        $certificate->render();
-        $certificate_file = $certificate->convertToPDF($params['download']);
+        $certificate->send();
 
         return civicrm_api3_create_success($certificate_file);
     } catch (Exception $exception) {

@@ -16,19 +16,13 @@ use CRM_Baumspenden_ExtensionUtil as E;
 
 class CRM_Baumspenden_Configuration
 {
-    /**
-     * TODO: Set to actual payment instrument ID
-     */
+    // TODO: Set to actual payment instrument ID
     public const PAYMENT_INSTRUMENT_ID_PAYMENT_REQUEST = 0;
 
-    /**
-     * TODO: Set to actual payment instrument ID
-     */
+    // TODO: Set to actual payment instrument ID
     public const PAYMENT_INSTRUMENT_ID_PAYPAL = 0;
 
-    /**
-     * TODO: Set to actual payment instrument ID
-     */
+    // TODO: Set to actual payment instrument ID
     public const PAYMENT_INSTRUMENT_ID_CREDIT_CARD = 0;
 
     public const XCM_PROFILE = 'baumspenden';
@@ -41,15 +35,20 @@ class CRM_Baumspenden_Configuration
 
     public const ACTIVITY_SUBJECT_FAILED = 'Fehlgeschlagene Baumspende';
 
-    /**
-     * TODO: Set to actual message template ID.
-     */
+    // TODO: Set to actual message template ID.
     public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 78;
 
-    /**
-     * TODO: Set to actual message template ID.
-     */
+    // TODO: Set to actual message template ID.
     public const MESSAGE_TEMPLATE_ID_EMAIL = 65;
+
+    // TODO: Set to actual message template ID.
+    public const MESSAGE_TEMPLATE_ID_EMAIL_OFFICE = 65;
+
+    // TODO: Set to actual message template ID.
+    public const MESSAGE_TEMPLATE_ID_COVER_LETTER = 79;
+
+    // TODO: Set to actual message template ID.
+    public const MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE = 79;
 
     public const GROUP_ID_NEWSLETTER = 19;
 
