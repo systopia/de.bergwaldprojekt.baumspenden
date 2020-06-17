@@ -496,6 +496,7 @@ class CRM_Baumspenden_Donation
                         [
                             'option_group_id' => 'baumspenden_' . $custom_field_name,
                             'name' => $params[$custom_field_name],
+                            'value' => $params[$custom_field_name],
                         ]
                     );
                     $option_value = reset($option_value['values']);
