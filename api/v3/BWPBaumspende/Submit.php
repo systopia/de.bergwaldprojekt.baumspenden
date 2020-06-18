@@ -240,16 +240,18 @@ function civicrm_api3_b_w_p_baumspende_submit($params)
     try {
         $donation = CRM_Baumspenden_Donation::create($params);
 
-        $certificate = new CRM_Baumspenden_Certificate(
-            $donation->get('id'),
-            $params['shipping_mode']
-        );
-        $certificate->render();
-        $certificate->convertToPDF();
-        $certificate->send();
+        if ($params['shipping_mode'] != 'none') {
+            $certificate = new CRM_Baumspenden_Certificate(
+                $donation->get('id'),
+                $params['shipping_mode']
+            );
+            $certificate->render();
+            $certificate->convertToPDF();
+            $certificate->send();
+        }
 
         return civicrm_api3_create_success(
-            [$donation->get('id') => $donation->getContribution()]
+            ['contribution_id' => $donation->get('id')]
         );
     } catch (Exception $exception) {
         return civicrm_api3_create_error($exception->getMessage());
