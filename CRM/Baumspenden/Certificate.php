@@ -407,6 +407,19 @@ class CRM_Baumspenden_Certificate
                 $custom_field_key,
                 $contribution[$custom_field_key]
             );
+
+            // Handle plural format for tree species.
+            if ($custom_field_name == 'plant_tree') {
+                $plural_variants = explode(
+                    '|',
+                    $contribution[$custom_field_key]
+                );
+                $is_plural = (int)($contribution[CRM_Baumspenden_CustomData::getCustomFieldKey(
+                        'baumspende',
+                        'baumspende_amount'
+                    )] > 1);
+                $contribution[$custom_field_key] = $plural_variants[$is_plural];
+            }
         }
         $html = CRM_Utils_Token::replaceContributionTokens(
             $html,
