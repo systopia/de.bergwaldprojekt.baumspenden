@@ -128,7 +128,11 @@ class CRM_Baumspenden_Donation
                     empty($params['presentee_first_name'])
                     || empty($params['presentee_last_name'])
                 ) {
-                    throw new Exception(E::ts('Missing mandatory parameter(s): one of presentee_first_name, presentee_last_name'));
+                    throw new Exception(
+                        E::ts(
+                            'Missing mandatory parameter(s): one of presentee_first_name, presentee_last_name'
+                        )
+                    );
                 }
             }
 
@@ -455,6 +459,7 @@ class CRM_Baumspenden_Donation
         $contribution_data = [
             'contact_id' => $contact_id,
             'amount' => $params['unit_price'] * $params['amount'],
+            'total_amount' => $params['unit_price'] * $params['amount'],
             'financial_type_id' => $financial_type['id'],
             'source' => CRM_Baumspenden_Configuration::CONTRIBUTION_SOURCE,
         ];
@@ -486,7 +491,7 @@ class CRM_Baumspenden_Donation
                         'getsingle',
                         [
                             'option_group_id' => 'baumspenden_' . $custom_field_name,
-                            'name' => $params[$custom_field_name],
+                            'value' => $params[$custom_field_name],
                         ]
                     );
                 } catch (Exception $exception) {
@@ -495,7 +500,7 @@ class CRM_Baumspenden_Donation
                         'create',
                         [
                             'option_group_id' => 'baumspenden_' . $custom_field_name,
-                            'name' => $params[$custom_field_name],
+                            'name' => $params[$custom_field_name . '_label'],
                             'value' => $params[$custom_field_name],
                         ]
                     );

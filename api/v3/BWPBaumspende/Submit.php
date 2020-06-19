@@ -137,6 +137,27 @@ function _civicrm_api3_b_w_p_baumspende_submit_spec(&$spec)
         'api.required' => 1,
         'description' => 'The species of which the trees are to be planted.',
     ];
+    $spec['plant_region_label'] = [
+        'name' => 'plant_region_label',
+        'title' => 'Planting region label',
+        'type' => CRM_Utils_Type::T_STRING,
+        'api.required' => 1,
+        'description' => 'The label of the region which the trees are to be planted in.',
+    ];
+    $spec['plant_period_label'] = [
+        'name' => 'plant_period_label',
+        'title' => 'Planting period label',
+        'type' => CRM_Utils_Type::T_STRING,
+        'api.required' => 1,
+        'description' => 'The label of the period of time which the trees are to be planted in.',
+    ];
+    $spec['plant_tree_label'] = [
+        'name' => 'plant_tree_label',
+        'title' => 'Tree species label',
+        'type' => CRM_Utils_Type::T_STRING,
+        'api.required' => 1,
+        'description' => 'The label of the species of which the trees are to be planted.',
+    ];
     $spec['shipping_mode'] = [
         'name' => 'shipping_mode',
         'title' => 'Shipping mode',

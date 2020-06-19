@@ -391,6 +391,23 @@ class CRM_Baumspenden_Certificate
             true,
             $messageToken
         );
+        // Replace custom field values that are option values with the
+        // corresponding option value name.
+        foreach ([
+            'plant_period',
+            'plant_region',
+            'plant_tree',
+                 ] as $custom_field_name) {
+            $custom_field_key = CRM_Baumspenden_CustomData::getCustomFieldKey(
+                'baumspende',
+                'baumspende_' . $custom_field_name
+            );
+            $contribution[$custom_field_key] = CRM_Core_PseudoConstant::getName(
+                'CRM_Contribute_BAO_Contribution',
+                $custom_field_key,
+                $contribution[$custom_field_key]
+            );
+        }
         $html = CRM_Utils_Token::replaceContributionTokens(
             $html,
             $contribution,
