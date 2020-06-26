@@ -96,6 +96,85 @@ class CRM_Baumspenden_Donation
     }
 
     /**
+     * Validates API parameters used for creating Baumspende contributions.
+     *
+     * @param $params
+     *   API parameters as defined for the BWPBaumspende.Submit API
+     *
+     * @throws Exception
+     *   When validating API parameters fails.
+     */
+    public static function validate(&$params) {
+        // Prepare parameters.
+        if (!empty($params['as_present']) && is_array(
+                $params['as_present']
+            )) {
+            $params['as_present'] = reset($params['as_present']);
+        }
+        if (!empty($params['newsletter']) && is_array(
+                $params['newsletter']
+            )) {
+            $params['newsletter'] = reset($params['newsletter']);
+        }
+
+        if (!empty($params['as_present'])) {
+            if (
+                empty($params['presentee_first_name'])
+                || empty($params['presentee_last_name'])
+            ) {
+                throw new Exception(
+                    E::ts(
+                        'Missing mandatory parameter(s): one of presentee_first_name, presentee_last_name'
+                    )
+                );
+            }
+        }
+
+        // Require e-mail address(es) when shipping_mode is "email"
+        if ($params['shipping_mode'] == 'email') {
+            if (
+                !empty($params['as_present'])
+                && !empty($params['presentee_shipping'])
+                && empty($params['presentee_email'])
+            ) {
+                throw new Exception(
+                    E::ts('Mandatory parameter missing: presentee_email')
+                );
+            }
+        }
+
+        // Require postal address(es) when shipping_mode is "postal"
+        if ($params['shipping_mode'] == 'postal') {
+            if (
+                !empty($params['as_present'])
+                && !empty($params['presentee_shipping'])
+            ) {
+                if (
+                    empty($params['presentee_street_address'])
+                    || empty($params['presentee_postal_code'])
+                    || empty($params['presentee_city'])
+                ) {
+                    throw new Exception(
+                        E::ts(
+                            'Missing mandatory parameter(s): one of presentee_street_adress, presentee_postal_code, presentee_city'
+                        )
+                    );
+                }
+            } elseif (
+                empty($params['street_address'])
+                || empty($params['postal_code'])
+                || empty($params['city'])
+            ) {
+                throw new Exception(
+                    E::ts(
+                        'Missing mandatory parameter(s): one of street_adress, postal_code, city'
+                    )
+                );
+            }
+        }
+    }
+
+    /**
      * Creates a new Baumspende contribution from API parameters.
      *
      * @param $params
@@ -111,75 +190,10 @@ class CRM_Baumspenden_Donation
     {
         $donation = new self();
         try {
-            // Prepare parameters.
-            if (!empty($params['as_present']) && is_array(
-                    $params['as_present']
-                )) {
-                $params['as_present'] = reset($params['as_present']);
-            }
-            if (!empty($params['newsletter']) && is_array(
-                    $params['newsletter']
-                )) {
-                $params['newsletter'] = reset($params['newsletter']);
-            }
+            // Prepare and validate parameters.
+            self::validate($params);
 
-            if (!empty($params['as_present'])) {
-                if (
-                    empty($params['presentee_first_name'])
-                    || empty($params['presentee_last_name'])
-                ) {
-                    throw new Exception(
-                        E::ts(
-                            'Missing mandatory parameter(s): one of presentee_first_name, presentee_last_name'
-                        )
-                    );
-                }
-            }
-
-            // Require e-mail address(es) when shipping_mode is "email"
-            if ($params['shipping_mode'] == 'email') {
-                if (
-                    !empty($params['as_present'])
-                    && !empty($params['presentee_shipping'])
-                    && empty($params['presentee_email'])
-                ) {
-                    throw new Exception(
-                        E::ts('Mandatory parameter missing: presentee_email')
-                    );
-                }
-            }
-
-            // Require postal address(es) when shipping_mode is "postal"
-            if ($params['shipping_mode'] == 'postal') {
-                if (
-                    !empty($params['as_present'])
-                    && !empty($params['presentee_shipping'])
-                ) {
-                    if (
-                        empty($params['presentee_street_address'])
-                        || empty($params['presentee_postal_code'])
-                        || empty($params['presentee_city'])
-                    ) {
-                        throw new Exception(
-                            E::ts(
-                                'Missing mandatory parameter(s): one of presentee_street_adress, presentee_postal_code, presentee_city'
-                            )
-                        );
-                    }
-                } elseif (
-                    empty($params['street_address'])
-                    || empty($params['postal_code'])
-                    || empty($params['city'])
-                ) {
-                    throw new Exception(
-                        E::ts(
-                            'Missing mandatory parameter(s): one of street_adress, postal_code, city'
-                        )
-                    );
-                }
-            }
-
-            // Create contribution.
+            // Retrieve initiator and presentee contacts.
             $initiator_contact_id = self::retrieveContact($params);
             if (!empty($params['as_present'])) {
                 $presentee_contact_id = self::retrieveContact(
@@ -198,8 +212,11 @@ class CRM_Baumspenden_Donation
                         'source' => CRM_Baumspenden_Configuration::CONTACT_SOURCE_PRESENTEE,
                     ]
                 );
+                // Set parameter for custom field retrieval.
                 $params['presentee'] = $presentee_contact_id;
             }
+
+            // Create contribution.
             $donation->contribution = self::createContribution(
                 $params,
                 $initiator_contact_id
@@ -210,33 +227,10 @@ class CRM_Baumspenden_Donation
 
             // Create activity of type "Schenkung Baumspende", if requested.
             if (!empty($params['as_present'])) {
-                $presentee_contact_id = null;
-                //                // Identify or create presentee contact.
-                //                $presentee_data = [
-                //                    'first_name' => $params['presentee_first_name'],
-                //                    'last_name' => $params['presentee_last_name'],
-                //                    'street_address' => $params['presentee_street_address'],
-                //                    'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : NULL),
-                //                    'postal_code' => $params['presentee_postal_code'],
-                //                    'city' => $params['presentee_city'],
-                //                    'email' => $params['presentee_email'],
-                //                ];
-                //                $xcm_result = civicrm_api3(
-                //                    'Contact',
-                //                    'getorcreate',
-                //                    $presentee_data + [
-                //                        'xcm_profile' => CRM_Baumspenden_Submission::XCM_PROFILE,
-                //                    ]
-                //                );
-                //                if ($xcm_result['is_error']) {
-                //                    throw new Exception($xcm_result['error_message']);
-                //                }
-                //                $presentee_contact_id = $xcm_result['id'];
-
                 $donation->createPresentActivity($presentee_contact_id);
             }
 
-            // Add newsletter subscription for group_id 19, if requested.
+            // Add newsletter subscription, if requested.
             if (!empty($params['newsletter'])) {
                 $donation->createNewsletterSubscription();
             }
@@ -298,8 +292,7 @@ class CRM_Baumspenden_Donation
      *
      * @throws Exception
      */
-    protected
-    function createContributionActivity()
+    protected function createContributionActivity()
     {
         $contribution_bao_params = [
             'id' => $this->get('id'),
@@ -331,10 +324,8 @@ class CRM_Baumspenden_Donation
      *
      * @throws Exception
      */
-    protected
-    function createPresentActivity(
-        $presentee_contact_id = null
-    ) {
+    protected function createPresentActivity($presentee_contact_id = null)
+    {
         $present_activity_type_id = CRM_Core_PseudoConstant::getKey(
             'CRM_Activity_BAO_Activity',
             'activity_type_id',
@@ -360,8 +351,7 @@ class CRM_Baumspenden_Donation
      *
      * @throws Exception
      */
-    protected
-    function createNewsletterSubscription()
+    protected function createNewsletterSubscription()
     {
         // Find the initiator contact's e-mail address to use for subscription.
         try {
@@ -447,8 +437,7 @@ class CRM_Baumspenden_Donation
      * @return array
      * @throws \CiviCRM_API3_Exception
      */
-    protected
-    static function prepareContributionData(
+    protected static function prepareContributionData(
         $params,
         $contact_id
     ) {
@@ -521,6 +510,8 @@ class CRM_Baumspenden_Donation
     }
 
     /**
+     * Creates a CiviCRM contribution entity.
+     *
      * @param array $params
      *
      * @return array
@@ -528,11 +519,8 @@ class CRM_Baumspenden_Donation
      *
      * @throws Exception
      */
-    protected
-    static function createContribution(
-        $params,
-        $initiator_contact_id
-    ) {
+    protected static function createContribution($params, $initiator_contact_id)
+    {
         $contribution_data = self::prepareContributionData(
             $params,
             $initiator_contact_id
