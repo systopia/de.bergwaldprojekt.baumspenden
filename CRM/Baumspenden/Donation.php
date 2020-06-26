@@ -147,11 +147,6 @@ class CRM_Baumspenden_Donation
                         E::ts('Mandatory parameter missing: presentee_email')
                     );
                 }
-                if (empty($params['email'])) {
-                    throw new Exception(
-                        E::ts('Mandatory parameter missing: email')
-                    );
-                }
             }
 
             // Require postal address(es) when shipping_mode is "postal"
