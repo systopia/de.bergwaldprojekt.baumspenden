@@ -191,6 +191,10 @@ class CRM_Baumspenden_Donation
                         'supplemental_address_1' => (!empty($params['presentee_supplemental_address_1']) ? $params['presentee_supplemental_address_1'] : null),
                         'postal_code' => (!empty($params['presentee_postal_code']) ? $params['presentee_postal_code'] : null),
                         'city' => (!empty($params['presentee_city']) ? $params['presentee_city'] : null),
+                        // Opt-out, do-not-mail, do-not-mail.
+                        'is_opt_out' => 1,
+                        'do_not_email' => 1,
+                        'do_not_mail' => 1,
                     ]
                 );
                 $params['presentee'] = $presentee_contact_id;
@@ -401,7 +405,7 @@ class CRM_Baumspenden_Donation
      */
     protected static function retrieveContact($params)
     {
-        $initiator_data = array_intersect_key(
+        $contact_data = array_intersect_key(
             $params,
             array_fill_keys(
                 [
@@ -413,6 +417,9 @@ class CRM_Baumspenden_Donation
                     'city',
                     'email',
                     'source',
+                    'is_opt_out',
+                    'do_not_email',
+                    'do_not_mail',
                 ],
                 true
             )
@@ -420,7 +427,7 @@ class CRM_Baumspenden_Donation
         $xcm_result = civicrm_api3(
             'Contact',
             'getorcreate',
-            $initiator_data + [
+            $contact_data + [
                 'xcm_profile' => CRM_Baumspenden_Configuration::XCM_PROFILE,
             ]
         );
