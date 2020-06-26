@@ -35,6 +35,8 @@ class CRM_Baumspenden_Configuration
 
     public const ACTIVITY_SUBJECT_FAILED = 'Fehlgeschlagene Baumspende';
 
+    public const ACTIVITY_SUBJECT_SENDING_FAILED = 'Fehlgeschlagener Baumspenden-Versand';
+
     // TODO: Set to actual message template ID.
     public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 78;
 

@@ -314,16 +314,13 @@ class CRM_Baumspenden_Certificate
         }
 
         $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
-        $result = civicrm_api3(
-            'MessageTemplate',
-            'send',
+        list($sent) = CRM_Core_BAO_MessageTemplate::sendTemplate(
             [
-                'id' => $email_template_id,
-                'contact_id' => $contact_id,
-                'template_params' => "",
+                'messageTemplateID' => $email_template_id,
+                'contactId' => $contact_id,
                 'from' => reset($from_email),
-                'to_name' => $contact['display_name'],
-                'to_email' => $to_email,
+                'toName' => $contact['display_name'],
+                'toEmail' => $to_email,
                 'attachments' => [
                     $cover_letter_file['id'] => [
                         'fullPath' => $cover_letter_file['path'],
@@ -346,7 +343,40 @@ class CRM_Baumspenden_Certificate
                 'id' => $cover_letter_file['id'],
             ]
         );
-        // TODO: Handle sending failures? Create activity.
+        // Handle sending failures: create activity.
+        if (!$sent) {
+            // Create activity of type "fehlgeschlagene_baumspende".
+            $sending_failed_activity_type_id = CRM_Core_PseudoConstant::getKey(
+                'CRM_Activity_BAO_Activity',
+                'activity_type_id',
+                'fehlgeschlagener_baumspende_versand'
+            );
+            civicrm_api3(
+                'Activity',
+                'create',
+                [
+                    'source_contact_id' => CRM_Core_Session::singleton()
+                        ->getLoggedInContactID(),
+                    'target_id' => $contact_id,
+                    'activity_type_id' => $sending_failed_activity_type_id,
+                    'status_id' => 'Scheduled',
+                    'subject' => CRM_Baumspenden_Configuration::ACTIVITY_SUBJECT_SENDING_FAILED,
+                    'details' => E::ts(
+                        'Sending a certificate for the <a href="%1">contribution %2</a> failed.',
+                        [
+                            1 => CRM_Utils_System::url(
+                                "civicrm/contact/view/contribution",
+                                'reset=1'
+                                . '&action=view'
+                                . '&cid=' . $contact_id
+                                . '&id=' . $this->contribution->get('id')
+                            ),
+                            2 => $this->contribution->get('id'),
+                        ]
+                    ),
+                ]
+            );
+        }
     }
 
     /**
