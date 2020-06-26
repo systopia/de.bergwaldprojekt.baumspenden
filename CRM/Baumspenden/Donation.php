@@ -195,6 +195,7 @@ class CRM_Baumspenden_Donation
                         'is_opt_out' => 1,
                         'do_not_email' => 1,
                         'do_not_mail' => 1,
+                        'source' => CRM_Baumspenden_Configuration::CONTACT_SOURCE_PRESENTEE,
                     ]
                 );
                 $params['presentee'] = $presentee_contact_id;

@@ -53,4 +53,6 @@ class CRM_Baumspenden_Configuration
     public const GROUP_ID_NEWSLETTER = 19;
 
     public const EMAIL_ADDRESS_OFFICE = 'baumspenden@bergwaldprojekt.de';
+
+    public const CONTACT_SOURCE_PRESENTEE = 'Beschenkte/r Baumspende';
 }
