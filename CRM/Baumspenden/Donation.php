@@ -394,7 +394,7 @@ class CRM_Baumspenden_Donation
      *
      * @throws \Exception
      */
-    protected static function retrieveContact($params)
+    public static function retrieveContact($params)
     {
         $contact_data = array_intersect_key(
             $params,
