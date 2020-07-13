@@ -23,8 +23,6 @@ class CRM_Baumspenden_Upgrader extends CRM_Baumspenden_Upgrader_Base
     {
         // TODO: Create XCM profile.
 
-        // TODO: Create financial type.
-
         // Update custom data structures.
         $customData = new CRM_Baumspenden_CustomData(E::LONG_NAME);
         $customData->syncOptionGroup(
@@ -45,5 +43,13 @@ class CRM_Baumspenden_Upgrader extends CRM_Baumspenden_Upgrader_Base
         $customData->syncOptionGroup(
             E::path('/resources/option_group_activity_type.json')
         );
+    }
+
+    public function upgrade_0120()
+    {
+        // TODO: Fill custom fields on existing Baumspende contributions:
+        //   - unit_price: statically 17 EUR
+        //   - amount: total_amount / unit_price
+        //   - certificate_name: Generate from contact first_name and last_name
     }
 }

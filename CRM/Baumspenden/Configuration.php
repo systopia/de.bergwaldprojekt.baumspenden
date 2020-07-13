@@ -38,19 +38,19 @@ class CRM_Baumspenden_Configuration
     public const ACTIVITY_SUBJECT_SENDING_FAILED = 'Fehlgeschlagener Baumspenden-Versand';
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 78;
+    public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 287;
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_EMAIL = 65;
+    public const MESSAGE_TEMPLATE_ID_EMAIL = 288;
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_EMAIL_OFFICE = 65;
+    public const MESSAGE_TEMPLATE_ID_EMAIL_OFFICE = 289;
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_COVER_LETTER = 79;
+    public const MESSAGE_TEMPLATE_ID_COVER_LETTER = 290;
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE = 79;
+    public const MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE = 291;
 
     public const GROUP_ID_NEWSLETTER = 19;
 
