@@ -134,7 +134,6 @@ class CRM_Baumspenden_Donation
         if ($params['shipping_mode'] == 'email') {
             if (
                 !empty($params['as_present'])
-                && !empty($params['presentee_shipping'])
                 && empty($params['presentee_email'])
             ) {
                 throw new Exception(
@@ -145,10 +144,7 @@ class CRM_Baumspenden_Donation
 
         // Require postal address(es) when shipping_mode is "postal"
         if ($params['shipping_mode'] == 'postal') {
-            if (
-                !empty($params['as_present'])
-                && !empty($params['presentee_shipping'])
-            ) {
+            if (!empty($params['as_present'])) {
                 if (
                     empty($params['presentee_street_address'])
                     || empty($params['presentee_postal_code'])
