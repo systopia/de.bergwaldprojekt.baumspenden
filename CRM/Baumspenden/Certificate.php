@@ -432,7 +432,8 @@ class CRM_Baumspenden_Certificate
                 'baumspende',
                 'baumspende_' . $custom_field_name
             );
-            $contribution[$custom_field_key] = CRM_Core_PseudoConstant::getName(
+            $contribution[$custom_field_name . '_key'] = $contribution[$custom_field_key];
+            $contribution[$custom_field_name] = CRM_Core_PseudoConstant::getName(
                 'CRM_Contribute_BAO_Contribution',
                 $custom_field_key,
                 $contribution[$custom_field_key]
@@ -448,7 +449,7 @@ class CRM_Baumspenden_Certificate
                         'baumspende',
                         'baumspende_amount'
                     )] > 1);
-                $contribution[$custom_field_key] = $plural_variants[$is_plural];
+                $contribution[$custom_field_name] = $plural_variants[$is_plural];
             }
         }
         $html = CRM_Utils_Token::replaceContributionTokens(
