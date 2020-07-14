@@ -151,6 +151,7 @@ function baumspenden_civicrm_entityTypes(&$entityTypes) {
  */
 function baumspenden_civicrm_permission(&$permissions) {
   $permissions['access BWP API BWPBaumspende.submit'] = 'BWP API: Access BWPBaumspende.Submit API';
+  $permissions['access BWP API BWPBaumspende.newsletter_subscribe'] = 'BWP API: Access BWPBaumspende.NewsletterSubscribe API';
 }
 
 /**
@@ -158,6 +159,7 @@ function baumspenden_civicrm_permission(&$permissions) {
  */
 function baumspenden_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
   $permissions['b_w_p_baumspende']['submit'] = ['access BWP API BWPBaumspende.submit'];
+  $permissions['b_w_p_baumspende']['newsletter_subscribe'] = ['access BWP API BWPBaumspende.newsletter_subscribe'];
 }
 
 /**
