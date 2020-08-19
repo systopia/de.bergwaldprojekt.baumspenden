@@ -195,7 +195,7 @@ class CRM_Baumspenden_Certificate
     public function convertToPDF($download = false)
     {
         $contribution_id = $this->contribution->get('id');
-        $filename = 'baumspenden_certificate_' . $contribution_id . '.pdf';
+        $filename = 'baumspenden_zertifikat_' . $contribution_id . '.pdf';
         $pdf = CRM_Utils_PDF_Utils::html2pdf(
             [$this->html],
             $filename,
@@ -293,7 +293,7 @@ class CRM_Baumspenden_Certificate
             [
                 'entity_table' => 'civicrm_contribution',
                 'entity_id' => $this->contribution->get('id'),
-                'name' => 'baumspenden_certificate_' . $this->contribution->get(
+                'name' => 'baumspenden_zertifikat_' . $this->contribution->get(
                         'id'
                     ) . '_anschreiben.pdf',
                 'mime_type' => 'application/pdf',
