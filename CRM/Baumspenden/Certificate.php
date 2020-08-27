@@ -314,27 +314,49 @@ class CRM_Baumspenden_Certificate
         }
 
         $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
-        list($sent) = CRM_Core_BAO_MessageTemplate::sendTemplate(
+
+        $message_template = civicrm_api3(
+            'MessageTemplate',
+            'getsingle',
             [
-                'messageTemplateID' => $email_template_id,
-                'contactId' => $contact_id,
-                'from' => reset($from_email),
-                'toName' => $contact['display_name'],
-                'toEmail' => $to_email,
-                'attachments' => [
-                    $cover_letter_file['id'] => [
-                        'fullPath' => $cover_letter_file['path'],
-                        'mime_type' => $cover_letter_file['mime_type'],
-                        'cleanName' => $cover_letter_file['name'],
-                    ],
-                    $this->pdf_file['id'] => [
-                        'fullPath' => $this->pdf_file['path'],
-                        'mime_type' => $this->pdf_file['mime_type'],
-                        'cleanName' => $this->pdf_file['name'],
-                    ],
-                ],
+                'id' => $email_template_id
             ]
         );
+
+        // Replace tokens in html and text body.
+        if (!empty($message_template['msg_html'])) {
+            // Prepare message template.
+            CRM_Contact_Form_Task_PDFLetterCommon::formatMessage(
+                $message_template['msg_html']
+            );
+            $this->replaceTokens($message_template['msg_html']);
+        }
+        if (!empty($message_template['msg_text'])) {
+            $this->replaceTokens($message_template['msg_text']);
+        }
+
+        $mail_params = [
+            'from' => reset($from_email),
+            'toName' => $contact['display_name'],
+            'toEmail' => $to_email,
+            'subject' => $message_template['msg_subject'],
+            'text' => !empty($message_template['msg_text']) ? $message_template['msg_text'] : null,
+            'html' => !empty($message_template['msg_html']) ? $message_template['msg_html'] : null,
+            'attachments' => [
+                $cover_letter_file['id'] => [
+                    'fullPath' => $cover_letter_file['path'],
+                    'mime_type' => $cover_letter_file['mime_type'],
+                    'cleanName' => $cover_letter_file['name'],
+                ],
+                $this->pdf_file['id'] => [
+                    'fullPath' => $this->pdf_file['path'],
+                    'mime_type' => $this->pdf_file['mime_type'],
+                    'cleanName' => $this->pdf_file['name'],
+                ],
+            ],
+        ];
+        $sent = CRM_Utils_Mail::send($mail_params);
+
         // Remove cover letter file attachment.
         civicrm_api3(
             'Attachment',
@@ -343,6 +365,7 @@ class CRM_Baumspenden_Certificate
                 'id' => $cover_letter_file['id'],
             ]
         );
+        
         // Handle sending failures: create activity.
         if (!$sent) {
             // Create activity of type "fehlgeschlagene_baumspende".
