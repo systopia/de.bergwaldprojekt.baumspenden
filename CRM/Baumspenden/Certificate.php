@@ -270,11 +270,12 @@ class CRM_Baumspenden_Certificate
      */
     public function send()
     {
+        $donor_contact_id = $this->contribution->get('contact_id');
         if ($this->contribution->get('presentee')) {
             $contact_id = $this->contribution->get('presentee');
             $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE;
         } else {
-            $contact_id = $this->contribution->get('contact_id');
+            $contact_id = $donor_contact_id;
             $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER;
         }
         $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
@@ -365,7 +366,7 @@ class CRM_Baumspenden_Certificate
                 'id' => $cover_letter_file['id'],
             ]
         );
-        
+
         // Handle sending failures: create activity.
         if (!$sent) {
             // Create activity of type "fehlgeschlagene_baumspende".
@@ -391,7 +392,7 @@ class CRM_Baumspenden_Certificate
                                 "civicrm/contact/view/contribution",
                                 'reset=1'
                                 . '&action=view'
-                                . '&cid=' . $contact_id
+                                . '&cid=' . $donor_contact_id
                                 . '&id=' . $this->contribution->get('id')
                             ),
                             2 => $this->contribution->get('id'),
@@ -411,10 +412,11 @@ class CRM_Baumspenden_Certificate
     {
         // Extract tokens from the HTML.
         $contribution = $this->contribution->getContribution();
+        $donor_contact_id = $this->contribution->get('contact_id');
         if ($this->contribution->get('presentee')) {
             $contact_id = $this->contribution->get('presentee');
         } else {
-            $contact_id = $this->contribution->get('contact_id');
+            $contact_id = $donor_contact_id;
         }
         $tokenCategories = self::getTokenCategories();
         $messageToken = CRM_Utils_Token::getTokens($html);
@@ -484,6 +486,23 @@ class CRM_Baumspenden_Certificate
                 }
             }
         }
+
+        // Add donor tokens to contribution, since they are not available when sending
+        // to peresentee.
+        $contribution['baumspende_donor_contact_id'] = $donor_contact_id;
+        if ($donor_contact_id != $contact_id) {
+            $donor_contact = civicrm_api3(
+                'Contact',
+                'getsingle',
+                ['id' => $donor_contact_id]
+            );
+        }
+        else {
+            $donor_contact = $contact;
+        }
+        $contribution['baumspende_donor_first_name'] = $donor_contact['first_name'];
+        $contribution['baumspende_donor_last_name'] = $donor_contact['last_name'];
+
         $html = CRM_Utils_Token::replaceContributionTokens(
             $html,
             $contribution,
