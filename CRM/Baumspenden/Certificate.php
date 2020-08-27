@@ -427,6 +427,7 @@ class CRM_Baumspenden_Certificate
             'baumspende',
             'baumspende_amount'
         );
+        $contribution['baumspende_amount'] = $contribution[$custom_field_key_amount];
         $is_plural = (int)($contribution[$custom_field_key_amount] > 1);
 
         // Replace custom field values that are option values with the
