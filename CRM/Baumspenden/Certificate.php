@@ -421,6 +421,14 @@ class CRM_Baumspenden_Certificate
             true,
             $messageToken
         );
+
+        // Decide whether amount is 1 or more.
+        $custom_field_key_amount = CRM_Baumspenden_CustomData::getCustomFieldKey(
+            'baumspende',
+            'baumspende_amount'
+        );
+        $is_plural = (int)($contribution[$custom_field_key_amount] > 1);
+
         // Replace custom field values that are option values with the
         // corresponding option value name.
         foreach ([
@@ -432,8 +440,8 @@ class CRM_Baumspenden_Certificate
                 'baumspende',
                 'baumspende_' . $custom_field_name
             );
-            $contribution[$custom_field_name . '_key'] = $contribution[$custom_field_key];
-            $contribution[$custom_field_name] = CRM_Core_PseudoConstant::getName(
+            $contribution['baumspende_' . $custom_field_name . '_key'] = $contribution[$custom_field_key];
+            $contribution['baumspende_' . $custom_field_name] = CRM_Core_PseudoConstant::getName(
                 'CRM_Contribute_BAO_Contribution',
                 $custom_field_key,
                 $contribution[$custom_field_key]
@@ -443,13 +451,13 @@ class CRM_Baumspenden_Certificate
             if ($custom_field_name == 'plant_tree') {
                 $plural_variants = explode(
                     '|',
-                    $contribution[$custom_field_key]
+                    $contribution['baumspende_' . $custom_field_name]
                 );
-                $is_plural = (int)($contribution[CRM_Baumspenden_CustomData::getCustomFieldKey(
-                        'baumspende',
-                        'baumspende_amount'
-                    )] > 1);
-                $contribution[$custom_field_name] = $plural_variants[$is_plural];
+                $contribution['baumspende_' . $custom_field_name] = $plural_variants[$is_plural];
+                // Replace singular amount with article if set.
+                if (!$is_plural && !empty($plural_variants[2])) {
+                    $contribution['baumspende_amount'] = $plural_variants[2];
+                }
             }
         }
         $html = CRM_Utils_Token::replaceContributionTokens(
