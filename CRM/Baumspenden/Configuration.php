@@ -41,7 +41,10 @@ class CRM_Baumspenden_Configuration
     public const MESSAGE_TEMPLATE_ID_CERTIFICATE = 287;
 
     // TODO: Set to actual message template ID.
-    public const MESSAGE_TEMPLATE_ID_EMAIL = 288;
+    public const MESSAGE_TEMPLATE_ID_EMAIL_DONOR = 288;
+
+    // TODO: Set to actual message template ID.
+    public const MESSAGE_TEMPLATE_ID_EMAIL_PRESENTEE = 292;
 
     // TODO: Set to actual message template ID.
     public const MESSAGE_TEMPLATE_ID_EMAIL_OFFICE = 289;

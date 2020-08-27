@@ -274,9 +274,11 @@ class CRM_Baumspenden_Certificate
         if ($this->contribution->get('presentee')) {
             $contact_id = $this->contribution->get('presentee');
             $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER_PRESENTEE;
+            $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL_PRESENTEE;
         } else {
             $contact_id = $donor_contact_id;
             $cover_letter_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_COVER_LETTER;
+            $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL_DONOR;
         }
         $contact = civicrm_api3('Contact', 'getsingle', ['id' => $contact_id]);
 
@@ -311,7 +313,6 @@ class CRM_Baumspenden_Certificate
             $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL_OFFICE;
         } else {
             $to_email = $contact['email'];
-            $email_template_id = CRM_Baumspenden_Configuration::MESSAGE_TEMPLATE_ID_EMAIL;
         }
 
         $from_email = CRM_Core_BAO_Domain::getNameAndEmail(false, true);
