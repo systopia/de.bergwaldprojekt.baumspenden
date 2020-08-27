@@ -448,6 +448,13 @@ class CRM_Baumspenden_Certificate
             $messageToken
         );
 
+        // Add custom tokens.
+        $custom_field_key_certificate_name = CRM_Baumspenden_CustomData::getCustomFieldKey(
+            'baumspende',
+            'baumspende_certificate_name'
+        );
+        $contribution['baumspende_certificate_name'] = $contribution[$custom_field_key_certificate_name];
+
         // Decide whether amount is 1 or more.
         $custom_field_key_amount = CRM_Baumspenden_CustomData::getCustomFieldKey(
             'baumspende',
