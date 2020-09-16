@@ -25,18 +25,20 @@
     position: absolute;
     text-align: center;
     width: 170mm;
-    line-height: 10mm;
+    line-height: 1;
     vertical-align: middle;
     outline: 1px solid black;
   }
 
   #page p#certificate-name {
-    top: 184mm;
+    top: 178mm;
     left: 20mm;
+    font-size: 40pt;
   }
   #page p#plant-info {
     top: 204mm;
     left: 20mm;
+    line-height: 10mm;
   }
 
   #contribution-id {
