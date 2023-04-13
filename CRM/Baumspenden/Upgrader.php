@@ -17,7 +17,7 @@ use CRM_Baumspenden_ExtensionUtil as E;
 /**
  * Class CRM_Baumspenden_Upgrader
  */
-class CRM_Baumspenden_Upgrader extends CRM_Baumspenden_Upgrader_Base
+class CRM_Baumspenden_Upgrader extends CRM_Extension_Upgrader_Base
 {
     public function install()
     {
