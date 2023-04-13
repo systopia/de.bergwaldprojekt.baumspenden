@@ -2,7 +2,7 @@
 <extension key="de.bergwaldprojekt.baumspenden" type="module">
   <file>baumspenden</file>
   <name>Bergwaldprojekt Baumspenden</name>
-  <description>API und Konfiguration für Baumspenden-Funktionalität</description>
+  <description>API und Konfiguration f&#xFC;r Baumspenden-Funktionalit&#xE4;t</description>
   <license>AGPL-3.0</license>
   <maintainer>
     <author>SYSTOPIA</author>
@@ -14,18 +14,27 @@
     <url desc="Support">http://github.com/systopia/de.bergwaldprojekt.baumspenden/issues</url>
     <url desc="Licensing">http://www.gnu.org/licenses/agpl-3.0.html</url>
   </urls>
-  <releaseDate></releaseDate>
+  <releaseDate/>
   <version>1.2-dev</version>
   <develStage>dev</develStage>
   <compatibility>
-    <ver>5.0</ver>
+    <ver>5.38</ver>
   </compatibility>
-  <comments></comments>
+  <comments/>
   <requires>
     <ext>de.systopia.xcm</ext>
     <ext>org.project60.sepa</ext>
   </requires>
   <civix>
     <namespace>CRM/Baumspenden</namespace>
+    <format>23.02.1</format>
   </civix>
+  <classloader>
+    <psr0 prefix="CRM_" path="."/>
+    <psr4 prefix="Civi\" path="Civi"/>
+  </classloader>
+  <upgrader>CRM_Baumspenden_Upgrader</upgrader>
+  <mixins>
+    <mixin>smarty-v2@1.0.1</mixin>
+  </mixins>
 </extension>
