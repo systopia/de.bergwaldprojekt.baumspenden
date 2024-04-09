@@ -22,24 +22,6 @@ function bwpapi_civicrm_install() {
 }
 
 /**
- * Implements hook_civicrm_postInstall().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postInstall
- */
-function bwpapi_civicrm_postInstall() {
-  _bwpapi_civix_civicrm_postInstall();
-}
-
-/**
- * Implements hook_civicrm_uninstall().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
- */
-function bwpapi_civicrm_uninstall() {
-  _bwpapi_civix_civicrm_uninstall();
-}
-
-/**
  * Implements hook_civicrm_enable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
@@ -55,35 +37,6 @@ function bwpapi_civicrm_enable() {
   $customData->syncEntities(__DIR__ . '/resources/financial_type_baumspende.json');
   $customData->syncCustomGroup(__DIR__ . '/resources/custom_group_baumspende.json');
   $customData->syncOptionGroup(__DIR__ . '/resources/option_group_activity_type.json');
-}
-
-/**
- * Implements hook_civicrm_disable().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
- */
-function bwpapi_civicrm_disable() {
-  _bwpapi_civix_civicrm_disable();
-}
-
-/**
- * Implements hook_civicrm_upgrade().
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_upgrade
- */
-function bwpapi_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-  return _bwpapi_civix_civicrm_upgrade($op, $queue);
-}
-
-/**
- * Implements hook_civicrm_entityTypes().
- *
- * Declare entity types provided by this module.
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
- */
-function bwpapi_civicrm_entityTypes(&$entityTypes) {
-  _bwpapi_civix_civicrm_entityTypes($entityTypes);
 }
 
 /**
