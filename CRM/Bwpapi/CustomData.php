@@ -148,11 +148,14 @@ class CRM_Bwpapi_CustomData {
         $extends_list = array();
         foreach ($data['extends_entity_column_value'] as $activity_type) {
           if (!is_numeric($activity_type)) {
-            $activity_type = CRM_Core_OptionGroup::getValue('activity_type', $activity_type, 'name');
+            $activity_type = \Civi\Api4\OptionValue::get(FALSE)
+              ->addSelect('value')
+              ->addWhere('option_group_id:name', '=', 'activity_type')
+              ->addWhere('name', '=', $activity_type)
+              ->execute()
+              ->single()['value'];
           }
-          if ($activity_type) {
-            $extends_list[] = $activity_type;
-          }
+          $extends_list[] = $activity_type;
         }
         $data['extends_entity_column_value'] = $extends_list;
       }
