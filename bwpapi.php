@@ -43,7 +43,9 @@ function bwpapi_civicrm_enable() {
  * Implements hook_civicrm_permission().
  */
 function bwpapi_civicrm_permission(&$permissions) {
-  $permissions['access BWP API BWPBaumspende.Submit'] = 'BWP API: Access BWPBaumspende.Submit API';
+  $permissions['access BWP API BWPBaumspende.Submit'] = [
+    'label' => 'BWP API: Access BWPBaumspende.Submit API',
+  ];
 }
 
 /**
